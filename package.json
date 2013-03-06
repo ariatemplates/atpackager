@@ -1,0 +1,28 @@
+{
+  "author": "ariatemplates <contact@ariatemplates.com> (http://github.com/ariatemplates)",
+  "name": "atpackager",
+  "description": "Visitor-based file packager plugin for Grunt 0.4.x, developped for the Aria Templates framework.",
+  "version": "0.1.0",
+  "homepage": "http://github.com/ariatemplates/atpackager",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/ariatemplates/atpackager.git"
+  },
+  "dependencies": {
+    "uglify-js": "2.2.4"
+  },
+  "devDependencies": {
+    "grunt": "git+https://github.com/divdavem/grunt.git#776b38f39a9d3bcc4cf083d8cb54345dfef63301",
+    "grunt-cli": "0.1.6",
+    "grunt-contrib-jshint": "0.1.1"
+  },
+  "peerDependencies": {
+    "grunt": "0.4.x"
+  },
+  "scripts": {
+    "test": "node node_modules/grunt-cli/bin/grunt test"
+  },
+  "keywords": [
+    "gruntplugin"
+  ]
+}
