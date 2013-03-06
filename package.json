@@ -12,7 +12,7 @@
     "uglify-js": "2.2.4"
   },
   "devDependencies": {
-    "grunt": "git+https://github.com/divdavem/grunt.git#b99198d371aa4f7deef0138977b0443acccefe1c",
+    "grunt": "git+https://github.com/divdavem/grunt.git#776b38f39a9d3bcc4cf083d8cb54345dfef63301",
     "grunt-cli": "0.1.6",
     "grunt-contrib-jshint": "0.1.1"
   },
