@@ -8,6 +8,7 @@
     "type": "git",
     "url": "git://github.com/ariatemplates/atpackager.git"
   },
+  "main": "lib/main.js",
   "dependencies": {
     "uglify-js": "2.4.0"
   },
