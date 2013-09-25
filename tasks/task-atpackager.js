@@ -39,6 +39,7 @@ module.exports = function (grunt) {
             currentPackaging.sourceDirectories = options.sourceDirectories;
             currentPackaging.outputDirectory = options.outputDirectory;
             currentPackaging.addVisitors(options.visitors);
+            currentPackaging.init();
             currentPackaging.addSourceFiles(options.sourceFiles);
             currentPackaging.addPackages(options.packages);
             currentPackaging.build();
