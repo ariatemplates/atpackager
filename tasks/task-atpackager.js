@@ -30,11 +30,13 @@ module.exports = function (grunt) {
                 packages : [],
                 defaultBuilder : null,
                 ATBootstrapFile : 'aria/bootstrap.js',
-                ATDirectories : []
+                ATDirectories : [],
+                ATDebug : false
             });
 
             currentPackaging.ATBootstrapFile = options.ATBootstrapFile;
             currentPackaging.ATDirectories = options.ATDirectories;
+            currentPackaging.ATDebug = options.ATDebug;
             currentPackaging.defaultBuilder = options.defaultBuilder;
             currentPackaging.sourceDirectories = options.sourceDirectories;
             currentPackaging.outputDirectory = options.outputDirectory;
