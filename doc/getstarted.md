@@ -1,3 +1,6 @@
+title: get started
+page: getstarted
+---
 # Get started
 
 ## Introduction: what is atpackager?

@@ -1,3 +1,6 @@
+title: Builders
+page: builders
+---
 Builders are components which actually build the packages.
 
 A builder takes a package configuration, and builds its corresponding output file from the specified set of input files. Please refer to the [configuration article](./configuration.html) for more information about the packages specifications.

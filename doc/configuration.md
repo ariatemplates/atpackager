@@ -1,4 +1,7 @@
-atpackager is built as a Grunt plugin and therefore expects its configuration to be passed using [`grunt.initConfig`](http://gruntjs.com/api/grunt.config#grunt.config.init) in the `Gruntfile.js` file.
+title: Configuration
+page: configuration
+---
+atpackager is built as a Grunt plugin and therefore expects it configuration to be passed using [`grunt.initConfig`](http://gruntjs.com/api/grunt.config#grunt.config.init) in the `Gruntfile.js` file.
 
 Here is an example of such a file:
 

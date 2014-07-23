@@ -14,7 +14,12 @@
  */
 
 module.exports = function (grunt) {
+    var pkg = require('./package.json');
+    var doc = require('./build/doc');
+
     grunt.loadNpmTasks('grunt-contrib-jshint');
+    grunt.loadNpmTasks('grunt-contrib-copy');
+    grunt.loadNpmTasks('grunt-markdown');
 
     grunt.initConfig({
         jshint : {
@@ -27,8 +32,41 @@ module.exports = function (grunt) {
                 curly : true
             },
             files : ['lib/**/*.js', 'tasks/**/*.js']
+        },
+
+        copy: {
+            doc: {
+                files: [{
+                    expand: true,
+                    cwd: 'doc',
+                    src: ['**', '!**/*.md'],
+                    dest: 'dist/doc'
+                }]
+            }
+        },
+        markdown: {
+            doc: {
+                options: {
+                    template: "tasks/templates/documentation.html",
+                    preCompile: doc.preCompile,
+                    postCompile: doc.postCompile,
+                    markdownOptions: {
+                        highlight: doc.highlight,
+                        gfm: true
+                    }
+                },
+                files: [{
+                    expand: true,
+                    cwd: 'doc',
+                    src: ['**/*.md', '!README.md'],
+                    dest: 'dist/doc',
+                    ext: '.html'
+                }]
+            }
         }
     });
 
     grunt.registerTask('test', ['jshint']);
+    grunt.registerTask('doc', ['copy:doc', 'markdown:doc']);
+    grunt.registerTask('default', ['test', 'doc']);
 };

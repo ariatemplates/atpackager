@@ -1,3 +1,6 @@
+title: Visitors
+page: visitors
+---
 A visitor is a kind of hook, which implements some specific methods.
 
 Visitors can be instantiated with a custom configuration, and then added to a packaging. The packager will call the specific methods on all its visitors at different steps of its process.

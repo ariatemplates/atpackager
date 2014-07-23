@@ -1,3 +1,15 @@
 language: node_js
 node_js:
-  - 0.8
+ - 0.8
+
+before_install:
+ - npm install -g npm
+ - npm --version
+
+env:
+ global:
+  - secure: "NI7NdaZ07nAHvTCqYIKn5/e7IDlbM4Vf5VeNPCvQrJLjGs9EwJeHQw2JPVMdIKuA9Ndh8zb3ziOajqyDyIety0IX4mA0QidapvdwSohfvfButDiCovC2Ol7cuhW1+HJuOvtCYD1IzBjr9edNxR2nDrW9+JAxNpjVK27mQyx7la4="
+
+after_success:
+ - chmod -R 777 ./ci-release.sh
+ - ./ci-release.sh
