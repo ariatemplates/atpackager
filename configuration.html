@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+		<title>atpackager - Configuration</title>
+		<meta charset="utf-8">
+		<link href="http://noder-js.ariatemplates.com/images/favicon.ico" type="image/ico" rel="shortcut icon">
+		<link rel="stylesheet" href="http://noder-js.ariatemplates.com/css/all.css" type="text/css">
+		<link rel="stylesheet" href="http://noder-js.ariatemplates.com/css/noder.css" type="text/css">
+		<link rel="stylesheet" href="http://noder-js.ariatemplates.com/css/snippets/style.css" type="text/css">
+		<link rel="stylesheet" href="http://noder-js.ariatemplates.com/css/snippets/highlight_skin.css" type="text/css">
+		<link rel="stylesheet" href="http://noder-js.ariatemplates.com/css/documentation.css" type="text/css">
+		<!--[if lt IE 8]>
+			<link href="http://noder-js.ariatemplates.com/css/ie7.css" rel="stylesheet" type="text/css">
+    	<![endif]-->
+		<!--[if lt IE 9]>
+			<script type="text/javascript" src="http://noder-js.ariatemplates.com/js/iemap.js"></script>
+			<script src="//html5shiv.googlecode.com/svn/trunk/html5.js" type="text/javascript" charset="utf-8"></script>
+			<style>.ie-hidden {display:none;}</style>
+		<![endif]-->
+		<style>
+			ol, ul {
+				padding-left: 30px;
+			}
+		</style>
+	</head>
+	<body class="documentation">
+		<header id="header">
+	    	<div class="logo">
+				<h5>
+					<a href="./index.html"><img alt="atpackager" src="images/logo-nav.png"></a>
+				</h5>
+			</div>
+			<nav>
+				<a class="getstarted " href="./getstarted.html">Get started</a>
+				<a class="configuration selected" href="./configuration.html">Configuration options</a>
+				<a class="builders " href="./builders.html">Builders</a>
+				<a class="visitors " href="./visitors.html">Visitors</a>
+			</nav>
+		</header>
+		<div class="content-wrapper">
+			<section class="content">
+				<div class="wrapper">
+					<div class="columns main-page one">
+						<article class="column"><p>atpackager is built as a Grunt plugin and therefore expects it configuration to be passed using <a href="http://gruntjs.com/api/grunt.config#grunt.config.init"><code>grunt.initConfig</code></a> in the <code>Gruntfile.js</code> file.</p>
+<p>Here is an example of such a file:</p>
+<div class='snippet'><pre><code class="lang-javascript">module.exports = <span class="function"><span class="keyword">function</span> <span class="params">(grunt)</span> {</span>
+    grunt.file.setBase(__dirname + <span class="string">"..."</span>);
+    grunt.loadTasks(<span class="string">".../atpackager/tasks"</span>);
+
+    grunt.initConfig({
+        atpackager: {
+            build: {
+                options: {
+                    <span class="comment">// sourceDirectories,</span>
+                    <span class="comment">// outputDirectory,</span>
+                    <span class="comment">// ATBootstrapFile,</span>
+                    <span class="comment">// ATAppEnvironment,</span>
+                    <span class="comment">// sourceFiles,</span>
+                    <span class="comment">// defaultBuilder,</span>
+                    <span class="comment">// packages,</span>
+                    <span class="comment">// visitors</span>
+                }
+            }
+        }
+    });
+
+    grunt.registerTask(<span class="string">'default'</span>, [
+        <span class="string">'atpackager:build'</span>
+    ]);
+};</code></pre></div>
+<p>The rest of this documentation mainly discusses the actual configuration of atpackager, namely the <code>options</code> object you can see in the snippet of code.</p>
+<h1 id="general-configuration-not-specific-to-atpackager">General configuration not specific to atpackager</h1>
+<h2 id="set-the-base-directory-of-the-project">Set the base directory of the project</h2>
+<p>This is the equivalent of the <em>current working directory</em>, but for Grunt.</p>
+<div class='snippet'><pre><code class="lang-javascript">grunt.file.setBase(<span class="string">"..."</span>);</code></pre></div>
+<p>Replace <code>...</code> with the actual path to the root of the project.</p>
+<h2 id="load-atpackager-tasks">Load atpackager tasks</h2>
+<div class='snippet'><pre><code class="lang-javascript">grunt.loadTasks(<span class="string">".../atpackager/tasks"</span>);</code></pre></div>
+<p>Replace <code>...</code> with the actual path to the <code>atpackager</code> module.</p>
+<h1 id="atpackager-specific-configuration">atpackager specific configuration</h1>
+<p>Note that since it is a Grunt plugin, atpackager uses a lot of the latter&#39;s features. Notably regarding paths for files and folders specifications: <a href="https://github.com/isaacs/node-glob">globs</a> are accepted.</p>
+<p>Note also the following terms and concepts used in this article:</p>
+<ul>
+<li>a <em>packaging</em> is what is built by the packager from the configuration object</li>
+<li>the <em>packager</em> is what builds the packaging</li>
+<li>a <em>package</em> is a configuration from which a single output file is built: a packaging is made of a set of them, as mentioned in the <a href="./getstarted.html#the-atpackager-design">introduction</a></li>
+<li>a <em>logical path</em> is a path relative to the packaging (which can have several roots!)</li>
+</ul>
+<h2 id="input-content-files-and-folders-">Input content (files and folders)</h2>
+<p>Use <code>sourceDirectories</code> to specify the packaging&#39;s root folders&#39; paths. It is used to search for files specified with a logical path. The root folders&#39; paths however are either absolute or relative to the base path configured for Grunt.</p>
+<p>Then, you can use <code>sourceFiles</code> to populate the packaging with source files. These source files include both those used directly to build output files, and those used for other purposes (direct copy, dependencies computation, etc.). Logical paths are expected.</p>
+<p>Example:</p>
+<div class='snippet'><pre><code class="lang-javascript">{
+    <span class="comment">// ...</span>
+    sourceDirectories: [
+        <span class="string">'src/main/static'</span>,
+        <span class="string">'...'</span>
+    ],
+    sourceFiles: [
+        <span class="string">'**/*.js'</span>,
+        <span class="string">'...'</span>
+    ]
+    <span class="comment">// ...</span>
+}</code></pre></div>
+<h2 id="output-directory">Output directory</h2>
+<p>Use the <code>outputDirectory</code> option to tell in which directory to put the built packages. This one is relative to the base path configured for Grunt.</p>
+<p>Example:</p>
+<div class='snippet'><pre><code class="lang-javascript">{
+    <span class="comment">// ...</span>
+    outputDirectory : <span class="string">'target/static'</span>
+    <span class="comment">// ...</span>
+}</code></pre></div>
+<h2 id="packages-definition">Packages definition</h2>
+<p>Pass to the <code>packages</code> option a list of packages definitions.</p>
+<p>A package is a single output file resulting from a building process applied on a set of input files.</p>
+<p>Therefore a package definition is made of the following properties:</p>
+<ul>
+<li><code>name</code>: the name of the resulting file</li>
+<li><code>builder</code>: the <a href="#builder-configuration">builder configuration</a> to use to create the output file from the input files.</li>
+<li><code>files</code>: the list of input files to be processed by the <code>builder</code> to create the output file with given <code>name</code></li>
+</ul>
+<p>Note that this list of input <code>files</code> will possibly be extended by some specific visitors if needed.</p>
+<p>Example of a package definition:</p>
+<div class='snippet'><pre><code class="lang-javascript">{
+    name: <span class="string">"basename.ext"</span>,
+    files: [
+        <span class="string">"..."</span>,
+        <span class="comment">// ...</span>
+    ],
+    builder: {
+        <span class="comment">// ...</span>
+    }
+}</code></pre></div>
+<p>You can also specify a default builder for packages: it will be used when no explicit builder is specified for a given package. Simply put a <a href="#builder-configuration">builder configuration</a> in <code>defaultBuilder</code>.</p>
+<h3 id="builder-configuration">Builder configuration</h3>
+<p>A builder specifies the way input files have to be merged in order to create a package. There are many <a href="./builders.html">built-in builders</a> available. In order to specify the builder configuration you can:</p>
+<ul>
+<li>either simply use its <strong>type</strong>:<div class='snippet'><pre><code class="lang-javascript">{
+  <span class="comment">// ...</span>
+  builder: <span class="string">"JSConcat"</span>
+}</code></pre></div>
+</li>
+<li>or a more complex object which contains its type and a configuration object:<div class='snippet'><pre><code class="lang-javascript">{
+  <span class="comment">// ...</span>
+  builder: {
+      type: <span class="string">"JSConcat"</span>,
+      cfg: {<span class="comment">// The configuration of object</span>
+              <span class="comment">// ...</span>
+      }
+  }
+}</code></pre></div>
+</li>
+</ul>
+<h2 id="visitors-specifications">Visitors specifications</h2>
+<p>Use <code>visitors</code> to specify the list of visitors to be used in the packaging. Please see the <a href="./visitors.html">dedicated section about visitors</a> to learn about their role.
+You can add a visitor in the <code>visitors</code> array by using:</p>
+<ul>
+<li>either simply its <strong>type</strong>:<div class='snippet'><pre><code class="lang-javascript">{
+  visitors: [<span class="string">"JSMinify"</span>]
+}</code></pre></div>
+</li>
+<li>or a more complex object which contains its type and a configuration object:<div class='snippet'><pre><code class="lang-javascript">{
+  visitors: [
+      <span class="string">"JSMinify"</span>,
+      {
+          type: <span class="string">"TextReplace"</span>,
+          cfg: {
+              <span class="comment">// its configuration</span>
+          }
+      }
+  ]
+}</code></pre></div>
+</li>
+</ul>
+<p>It is important to note that visitors are called in the order in which they were specified.</p>
+<p>See <a href="./visitors.html">here</a> for a detailed list of built-in visitors.</p>
+<h2 id="aria-templates-specific">Aria Templates specific</h2>
+<p>The <code>ATBootstrapFile</code> option expects the path of a custom bootstrap file to be used to load Aria Templates. This path can be relative to the <code>sourceDirectories</code> configured for the packaging.</p>
+<p>Having such a custom bootstrap file can be necessary in the case of pre-compilation of Atlas templates. Templates pre-compilation can depend on some application environment variables. In order to set the desired environment variables, there are two options:</p>
+<ul>
+<li><p>either use the standard Aria Templates bootstrap file as <code>ATBootstrapFile</code>, and the appropriate configuration variable <code>ATAppEnvironment</code> for the environment, as shown below:</p>
+<div class='snippet'><pre><code class="lang-javascript">  {
+      <span class="comment">// ...</span>
+      ATBootstrapFile: <span class="string">'aria/aria-templates.js'</span>,
+      ATAppEnvironment: {
+          defaultWidgetLibs : {
+              <span class="string">'aria'</span>: <span class="string">'aria.widgets.AriaLib'</span>,
+              <span class="string">'embed'</span>: <span class="string">'aria.embed.EmbedLib'</span>,
+              <span class="string">'html'</span>: <span class="string">'aria.html.HtmlLibrary'</span>
+          }
+      }
+      <span class="comment">// ...</span>
+  }</code></pre></div>
+</li>
+<li><p>or create an ad-hoc bootstrap file which loads the standard bootstrap and then directly calls the methods that are available in the framework. Such a file would look like this</p>
+<div class='snippet'><pre><code class="lang-javascript">  <span class="comment">// Loading the normal Aria Templates bootstrap file:</span>
+  load(<span class="string">'aria/aria-templates.js'</span>);
+
+  <span class="comment">// Setting the environment for template pre-compilation:</span>
+  aria.core.AppEnvironment.setEnvironment({
+      defaultWidgetLibs : {
+          <span class="string">'aria'</span>: <span class="string">'aria.widgets.AriaLib'</span>,
+          <span class="string">'embed'</span>: <span class="string">'aria.embed.EmbedLib'</span>,
+          <span class="string">'html'</span>: <span class="string">'aria.html.HtmlLibrary'</span>
+      }
+  });</code></pre></div>
+</li>
+</ul>
+</article>
+					</div>
+				</div>
+			</section>
+		</div>
+		<footer id="footer">
+			<section class="content legal">
+			© 2012 Aria Templates is licensed under Apache 2.0 license. See our <a href="http://ariatemplates.com/license">licensing page</a>
+			</section>
+		</footer>
+		<script>
+			(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+			(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+			m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+			})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+			ga('create', 'UA-29575860-4', 'ariatemplates.com');
+			ga('send', 'pageview');
+		</script>
+	</body>
+</html>

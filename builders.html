@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+		<title>atpackager - Builders</title>
+		<meta charset="utf-8">
+		<link href="http://noder-js.ariatemplates.com/images/favicon.ico" type="image/ico" rel="shortcut icon">
+		<link rel="stylesheet" href="http://noder-js.ariatemplates.com/css/all.css" type="text/css">
+		<link rel="stylesheet" href="http://noder-js.ariatemplates.com/css/noder.css" type="text/css">
+		<link rel="stylesheet" href="http://noder-js.ariatemplates.com/css/snippets/style.css" type="text/css">
+		<link rel="stylesheet" href="http://noder-js.ariatemplates.com/css/snippets/highlight_skin.css" type="text/css">
+		<link rel="stylesheet" href="http://noder-js.ariatemplates.com/css/documentation.css" type="text/css">
+		<!--[if lt IE 8]>
+			<link href="http://noder-js.ariatemplates.com/css/ie7.css" rel="stylesheet" type="text/css">
+    	<![endif]-->
+		<!--[if lt IE 9]>
+			<script type="text/javascript" src="http://noder-js.ariatemplates.com/js/iemap.js"></script>
+			<script src="//html5shiv.googlecode.com/svn/trunk/html5.js" type="text/javascript" charset="utf-8"></script>
+			<style>.ie-hidden {display:none;}</style>
+		<![endif]-->
+		<style>
+			ol, ul {
+				padding-left: 30px;
+			}
+		</style>
+	</head>
+	<body class="documentation">
+		<header id="header">
+	    	<div class="logo">
+				<h5>
+					<a href="./index.html"><img alt="atpackager" src="images/logo-nav.png"></a>
+				</h5>
+			</div>
+			<nav>
+				<a class="getstarted " href="./getstarted.html">Get started</a>
+				<a class="configuration " href="./configuration.html">Configuration options</a>
+				<a class="builders selected" href="./builders.html">Builders</a>
+				<a class="visitors " href="./visitors.html">Visitors</a>
+			</nav>
+		</header>
+		<div class="content-wrapper">
+			<section class="content">
+				<div class="wrapper">
+					<div class="columns main-page one">
+						<article class="column"><p>Builders are components which actually build the packages.</p>
+<p>A builder takes a package configuration, and builds its corresponding output file from the specified set of input files. Please refer to the <a href="./configuration.html">configuration article</a> for more information about the packages specifications.</p>
+<p>All builders can potentially expect a configuration object.</p>
+<p>There are <a href="#built-in-builders">built-in builders</a>, but you can also <a href="#create-custom-builders">create custom ones or use custom builders from other libraries</a>.</p>
+<h1 id="built-in-builders">Built-in builders</h1>
+<p>General purpose builders:</p>
+<ul>
+<li><a href="#copy-files-copy-">Copy files</a></li>
+<li><a href="#concatenate-files-concat-">Concatenate files</a></li>
+</ul>
+<p>JavaScript specific builders:</p>
+<ul>
+<li><a href="#concatenate-javascript-files-jsconcat-">Concatenate JavaScript files</a></li>
+</ul>
+<p>Aria Templates specific builders:</p>
+<ul>
+<li><a href="#create-an-aria-templates-multi-part-file-atmultipart-">Create an Aria Templates multi-part file</a></li>
+</ul>
+<h1 id="copy-files-copy-">Copy files: <code>Copy</code></h1>
+<p><em>No configuration expected</em></p>
+<p>Creates the output content by copying the content of one single file. This means that if the package is configured with more than 1 source file the builder will log an error with grunt (<a href="http://gruntjs.com/api/grunt.log#grunt.log.error-grunt.verbose.error"><code>grunt.log.error</code></a>).</p>
+<p>The copy of the content is done in two steps: first the content is retrieved from the source file, then it is written to the output file. This split allows to hook the process with visitors, with possible modification of the content or output options. Here is the full process:</p>
+<ol>
+<li>visitors: <code>onWriteInputFile</code></li>
+<li>content retrieved</li>
+<li>visitors: <code>onWriteOutputFile</code></li>
+<li>content written</li>
+</ol>
+<h1 id="concatenate-files-concat-">Concatenate files: <code>Concat</code></h1>
+<p>Creates the output content by concatenating its source files&#39; contents together, optionally adding a header at the beginning and a footer at the end.</p>
+<h2 id="configuration">Configuration</h2>
+<ul>
+<li><code>outputEncoding</code>, <a href="http://devdocs.io/javascript/global_objects/string"><code>String</code></a>, defaults to <a href="http://gruntjs.com/api/grunt.file#grunt.file.defaultencoding"><code>grunt.file.defaultEncoding</code></a>: the encoding of the output file.</li>
+<li><code>header</code>, <a href="http://devdocs.io/javascript/global_objects/string"><code>String</code></a>, optional: the header to put at the beginning of the output file.</li>
+<li><code>footer</code>, <a href="http://devdocs.io/javascript/global_objects/string"><code>String</code></a>, optional: the footer to put at the end of the file.</li>
+</ul>
+<h2 id="build-process">Build process</h2>
+<p>The parts of the content are queued before being actually written to the output file, allowing for hooking with visitors.</p>
+<ol>
+<li><code>header</code> queued (if specified)</li>
+<li>for each source file<ol>
+<li>visitors: <code>onWriteInputFile</code></li>
+<li>content retrieved and queued</li>
+</ol>
+</li>
+<li><code>footer</code> queued (if specified)</li>
+<li>content generated from the queue</li>
+<li>visitors: <code>onWriteOutputFile</code></li>
+<li>content written</li>
+</ol>
+<h1 id="concatenate-javascript-files-jsconcat-">Concatenate JavaScript files: <code>JSConcat</code></h1>
+<p>This builder works similarly to <code>Concat</code>, however the content is considered as JavaScript, allowing for more specific processing.</p>
+<p>The content is not represented as a string but rather as an AST, until the end when it is generated back to a string, applying the given options.</p>
+<p>Before the content is generated, it is possible to wrap it with some JavaScript code. This holds for each input file individually and also for the output file afterwards.</p>
+<h2 id="configuration">Configuration</h2>
+<ul>
+<li>The options <code>outputEncoding</code>, <code>header</code> and <code>footer</code> are the same as for <code>Concat</code></li>
+<li><code>jsOutputOptions</code>, <a href="http://devdocs.io/javascript/global_objects/object"><code>Object</code></a>, defaults to <code>{beautify : true, ascii_only : true, comments : true}</code>: options to be passed to UglifyJS when converting the AST to a string.</li>
+</ul>
+<p>Wrappers, <a href="http://devdocs.io/javascript/global_objects/string"><code>String</code></a>, default to <code>&quot;$CONTENT$&quot;</code> (the content is not wrapped): this should be some JS code containing the special <code>$CONTENT$</code> keyword which will be replaced by the content of the concerned file. Here are the possible wrappers:</p>
+<ul>
+<li><code>inputFileWrapper</code>: wrapper for each input file.</li>
+<li><code>outputFileWrapper</code>: wrapper for the output file.</li>
+</ul>
+<h2 id="build-process">Build process</h2>
+<p>The parts of the content are queued before being actually written to the output file, allowing for hooking with visitors.</p>
+<ol>
+<li>for each source file<ol>
+<li>visitors: <code>onWriteInputFile</code></li>
+<li>AST content retrieved</li>
+<li>AST content wrapped using <code>inputFileWrapper</code></li>
+<li>AST content queued</li>
+</ol>
+</li>
+<li>full AST content generated from the queue</li>
+<li>full AST content wrapped using <code>outputFileWrapper</code></li>
+<li>visitors: <code>onWriteJSOutputFile</code></li>
+<li>final content generated</li>
+<li>final content wrapped with <code>header</code> and <code>footer</code> (if specified)</li>
+<li>visitors: <code>onWriteOutputFile</code></li>
+<li>final content written</li>
+</ol>
+<h1 id="create-an-aria-templates-multi-part-file-atmultipart-">Create an Aria Templates Multi-part file: <code>ATMultipart</code></h1>
+<p>This builder creates files in the Aria Templates multi-part format. It extends the <code>Concat</code> builder, so please refer to it as well.</p>
+<h2 id="configuration">Configuration</h2>
+<ul>
+<li><code>multipartBoundary</code>, <a href="http://devdocs.io/javascript/global_objects/string"><code>String</code></a>, defaults to <code>&#39;*******************&#39;</code>: specifies the separator to use between files. This sequence should not appear in any of the files.</li>
+</ul>
+<h2 id="build-process">Build process</h2>
+<p>Note that nothing specific is done by this builder if there is only one source file configured for the package currently being built. Thus, in this case it would behave exactly as the <code>Concat</code> builder.</p>
+<p>Otherwise, here are the specificities added by this builder:</p>
+<ul>
+<li>after letting the initial <code>Concat</code>&#39;s implementation write the provided header, this builder adds the following text: <code>//***MULTI-PART</code></li>
+<li>before letting the initial <code>Concat</code>&#39;s implementation write the content of an input file, this builder adds the multi-part header, which has the following format:</li>
+</ul>
+<div class='snippet'><pre><code class="lang-javascript">
+<span class="comment">//{multipartBoundary}</span>
+<span class="comment">//LOGICAL-PATH:{path}</span>
+<span class="comment">//{multipartBoundary}</span></code></pre></div>
+<p>where:</p>
+<ul>
+<li><code>{multipartBoundary}</code> is the one provided in configuration</li>
+<li><code>{path}</code> is the logical path of the input file, with backslashes replaced by normal slashes</li>
+</ul>
+<p>For the full process, please refer to the <code>Concat</code> builder.</p>
+<h1 id="create-custom-builders">Create custom builders</h1>
+<p>It is possible to create custom builders and use them in your packages configurations. As an example, you can take a look at the <a href="https://github.com/ariatemplates/noder-js/tree/master/build/builders">custom builders created for noderJS</a>.</p>
+<h2 id="how-to-declare-a-custom-builder">How to declare a custom builder</h2>
+<p>You simply need to create file <code>atpackager.js</code> <strong>at the root of your project</strong> which looks like this</p>
+<div class='snippet'><pre><code class="lang-javascript">module.exports = <span class="function"><span class="keyword">function</span><span class="params">(atpackager)</span> {</span>
+    <span class="built_in">require</span>(<span class="string">"./atpackager"</span>).init(atpackager);
+    atpackager.builders.MyFirstBuilder = <span class="built_in">require</span>(<span class="string">"./myBuilderPath/MyFirstBuilder"</span>);
+    atpackager.builders.MySecondBuilder = <span class="built_in">require</span>(<span class="string">"./myBuilderPath/MySecondBuilder"</span>);
+};</code></pre></div>
+<p>This is what we call a <strong>plugin</strong> for atpackager. It is important that you put the plugin file at the root of your project if you want external projects to use the custom builders declared therein.
+Plugins allow you also to declare <a href="./visitors.html#create-custom-visitors">custom visitors</a>.</p>
+<h2 id="how-to-use-a-custom-builder">How to use a custom builder</h2>
+<p>If you have created a custom builder and declared it in a plugin, you can use it within your project by loading the plugin</p>
+<div class='snippet'><pre><code class="lang-javascript"><span class="built_in">require</span>(<span class="string">'atpackager'</span>).loadPlugin(<span class="string">'./atpackager'</span>);</code></pre></div>
+<p>If you want to load atpackager plugins defined in a dependency (for example in <a href="http://noder-js.ariatemplates.com/"><code>noderJS</code></a>) in order to use the custom builders they declare, you can use</p>
+<div class='snippet'><pre><code class="lang-javascript"><span class="built_in">require</span>(<span class="string">'atpackager'</span>).loadNpmPlugin(<span class="string">'noder-js'</span>);</code></pre></div>
+<p>This will load plugin <code>atpackager.js</code> at the root of <code>noder-js</code> dependency.</p>
+</article>
+					</div>
+				</div>
+			</section>
+		</div>
+		<footer id="footer">
+			<section class="content legal">
+			© 2012 Aria Templates is licensed under Apache 2.0 license. See our <a href="http://ariatemplates.com/license">licensing page</a>
+			</section>
+		</footer>
+		<script>
+			(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+			(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+			m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+			})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+			ga('create', 'UA-29575860-4', 'ariatemplates.com');
+			ga('send', 'pageview');
+		</script>
+	</body>
+</html>

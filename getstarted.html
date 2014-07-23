@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+		<title>atpackager - get started</title>
+		<meta charset="utf-8">
+		<link href="http://noder-js.ariatemplates.com/images/favicon.ico" type="image/ico" rel="shortcut icon">
+		<link rel="stylesheet" href="http://noder-js.ariatemplates.com/css/all.css" type="text/css">
+		<link rel="stylesheet" href="http://noder-js.ariatemplates.com/css/noder.css" type="text/css">
+		<link rel="stylesheet" href="http://noder-js.ariatemplates.com/css/snippets/style.css" type="text/css">
+		<link rel="stylesheet" href="http://noder-js.ariatemplates.com/css/snippets/highlight_skin.css" type="text/css">
+		<link rel="stylesheet" href="http://noder-js.ariatemplates.com/css/documentation.css" type="text/css">
+		<!--[if lt IE 8]>
+			<link href="http://noder-js.ariatemplates.com/css/ie7.css" rel="stylesheet" type="text/css">
+    	<![endif]-->
+		<!--[if lt IE 9]>
+			<script type="text/javascript" src="http://noder-js.ariatemplates.com/js/iemap.js"></script>
+			<script src="//html5shiv.googlecode.com/svn/trunk/html5.js" type="text/javascript" charset="utf-8"></script>
+			<style>.ie-hidden {display:none;}</style>
+		<![endif]-->
+		<style>
+			ol, ul {
+				padding-left: 30px;
+			}
+		</style>
+	</head>
+	<body class="documentation">
+		<header id="header">
+	    	<div class="logo">
+				<h5>
+					<a href="./index.html"><img alt="atpackager" src="images/logo-nav.png"></a>
+				</h5>
+			</div>
+			<nav>
+				<a class="getstarted selected" href="./getstarted.html">Get started</a>
+				<a class="configuration " href="./configuration.html">Configuration options</a>
+				<a class="builders " href="./builders.html">Builders</a>
+				<a class="visitors " href="./visitors.html">Visitors</a>
+			</nav>
+		</header>
+		<div class="content-wrapper">
+			<section class="content">
+				<div class="wrapper">
+					<div class="columns main-page one">
+						<article class="column"><h1 id="get-started">Get started</h1>
+<h2 id="introduction-what-is-atpackager-">Introduction: what is atpackager?</h2>
+<p>atpackager (<strong>Aria Templates Packager</strong>) is a tool to create a <strong>packaging</strong> of your product.</p>
+<p>It is built in a generic way, so that it can be used for any type of project and easily extended. Its configuration of <strong>packages</strong> is very simple to use.</p>
+<p>atpackager comes with a set of built-in components, from simple files processing, to handling of content types such as JavaScript and also Aria Templates.</p>
+<h3 id="what-is-packaging-in-a-word-">What is packaging in a word?</h3>
+<p>The idea is to take a bunch of source files (code, documentation, resources, whatever), and to apply some transformations to their content and to their layout (it is possible to concatenate files, move them, etc.), in order to deliver the product in a tailored form for the desired purpose (usually for production).</p>
+<h3 id="the-atpackager-design">The atpackager design</h3>
+<p><em>Here is a more formal description of the design of atpackager, which can help you understand the terminology present in the rest of the documentation.</em> Additional details are found elsewhere in the documentation.</p>
+<p>A <strong>packaging</strong> is mostly a set of <strong>packages</strong>. Apart from them, it contains global configuration and notably a list of <strong>visitors</strong> (see below).</p>
+<p>A <strong>package</strong> results in <strong>a single output file</strong>, however its definition contains <strong>information about how to build</strong> this output file, which notably implies a <strong>builder</strong>.</p>
+<p>The whole process of building the packaging, from high-level to low-level operations, triggers events: <strong>visitors</strong> can catch these events to alter or simply react to this process.</p>
+<h3 id="the-environment-of-atpackager">The environment of atpackager</h3>
+<p>atpackager is built for <a href="http://nodejs.org/">node.js</a>, as a <a href="http://gruntjs.com/">Grunt</a> plugin.</p>
+<h2 id="download">Download</h2>
+<p><em><a href="https://www.npmjs.org/package/atpackager">atpackager</a> is available on <a href="https://www.npmjs.org/">npm</a></em></p>
+<p>To install it inside your project, execute this:</p>
+<div class='snippet'><pre><code class="lang-bash">npm install atpackager</code></pre></div>
+<p>Otherwise, include it as a dependency inside your <code>package.json</code> file.</p>
+<h2 id="configure">Configure</h2>
+<p><em><a href="./configuration.html">Full article on the configuration options</a></em></p>
+<p>atpackager is a tool, and it needs some instructions to do something, like: where to take files from, what to do with them, etc.</p>
+<p>In general, there are several ways to pass such information to a tool, depending on its interface: command line arguments, &quot;standard&quot; configuration files, etc.</p>
+<p>In the case of atpackager, since the latter is built as a Grunt plugin, this information will be passed as for other Grunt plugins: using a configuration object in the <code>Gruntfile.js</code> file. For more information about this file, you can have a look at <a href="http://gruntjs.com/sample-gruntfile">the Grunt website</a>.</p>
+<p>The configuration is the most important topic concerning this tool, this is where you will tell atpackager how your packages have to be created.</p>
+<h2 id="execute">Execute</h2>
+<p>To execute atpackager and actually build the packaging, you will need to invoke grunt with the <code>Gruntfile</code> containing the configuration as discussed <a href="#configure">above</a>.</p>
+<p>There are several ways to do this, please refer to the <a href="http://gruntjs.com/getting-started">Grunt website</a> to learn about <em>standard</em> ways. However, we quickly recap them below.</p>
+<h3 id="using-the-cli-program">Using the CLI program</h3>
+<p>If the Grunt CLI is globally installed (<code>npm install -g grunt-cli</code>), you can directly use it in the same folder where the <code>Gruntfile.js</code> file is: executing <code>grunt</code> will run the default task.</p>
+<p>Note that it is still necessary to have the grunt package installed inside your project (<code>npm install grunt</code>), <code>grunt-cli</code> being only the command line interface to the former.</p>
+<h3 id="using-the-cli-function-in-grunt-directly">Using the CLI function in Grunt directly</h3>
+<p>In our example below, we assume two things:</p>
+<ul>
+<li>the piece of JavaScript code is executed in the folder where the <code>Gruntfile.js</code> file is</li>
+<li><code>grunt</code> can be required with an absolute id (no relative path)</li>
+</ul>
+<div class='snippet'><pre><code class="lang-javascript"><span class="keyword">var</span> grunt = <span class="built_in">require</span>(<span class="string">"grunt"</span>); <span class="comment">// found in a node_modules folder</span>
+
+grunt.cli({
+    gruntfile: __dirname + <span class="string">"/Gruntfile.js"</span> <span class="comment">// Gruntfile.js file in current module's folder</span>
+});</code></pre></div>
+<p>The list of available options can be seen in this source file <a href="https://github.com/gruntjs/grunt/blob/master/lib/grunt/cli.js">grunt/lib/grunt/cli.js</a>.</p>
+</article>
+					</div>
+				</div>
+			</section>
+		</div>
+		<footer id="footer">
+			<section class="content legal">
+			© 2012 Aria Templates is licensed under Apache 2.0 license. See our <a href="http://ariatemplates.com/license">licensing page</a>
+			</section>
+		</footer>
+		<script>
+			(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+			(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+			m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+			})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+			ga('create', 'UA-29575860-4', 'ariatemplates.com');
+			ga('send', 'pageview');
+		</script>
+	</body>
+</html>

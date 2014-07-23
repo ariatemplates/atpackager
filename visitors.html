@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+		<title>atpackager - Visitors</title>
+		<meta charset="utf-8">
+		<link href="http://noder-js.ariatemplates.com/images/favicon.ico" type="image/ico" rel="shortcut icon">
+		<link rel="stylesheet" href="http://noder-js.ariatemplates.com/css/all.css" type="text/css">
+		<link rel="stylesheet" href="http://noder-js.ariatemplates.com/css/noder.css" type="text/css">
+		<link rel="stylesheet" href="http://noder-js.ariatemplates.com/css/snippets/style.css" type="text/css">
+		<link rel="stylesheet" href="http://noder-js.ariatemplates.com/css/snippets/highlight_skin.css" type="text/css">
+		<link rel="stylesheet" href="http://noder-js.ariatemplates.com/css/documentation.css" type="text/css">
+		<!--[if lt IE 8]>
+			<link href="http://noder-js.ariatemplates.com/css/ie7.css" rel="stylesheet" type="text/css">
+    	<![endif]-->
+		<!--[if lt IE 9]>
+			<script type="text/javascript" src="http://noder-js.ariatemplates.com/js/iemap.js"></script>
+			<script src="//html5shiv.googlecode.com/svn/trunk/html5.js" type="text/javascript" charset="utf-8"></script>
+			<style>.ie-hidden {display:none;}</style>
+		<![endif]-->
+		<style>
+			ol, ul {
+				padding-left: 30px;
+			}
+		</style>
+	</head>
+	<body class="documentation">
+		<header id="header">
+	    	<div class="logo">
+				<h5>
+					<a href="./index.html"><img alt="atpackager" src="images/logo-nav.png"></a>
+				</h5>
+			</div>
+			<nav>
+				<a class="getstarted " href="./getstarted.html">Get started</a>
+				<a class="configuration " href="./configuration.html">Configuration options</a>
+				<a class="builders " href="./builders.html">Builders</a>
+				<a class="visitors selected" href="./visitors.html">Visitors</a>
+			</nav>
+		</header>
+		<div class="content-wrapper">
+			<section class="content">
+				<div class="wrapper">
+					<div class="columns main-page one">
+						<article class="column"><p>A visitor is a kind of hook, which implements some specific methods.</p>
+<p>Visitors can be instantiated with a custom configuration, and then added to a packaging. The packager will call the specific methods on all its visitors at different steps of its process.</p>
+<p>It implements the concept of <em>events</em>:</p>
+<ul>
+<li>events names are equivalent to the implemented methods&#39; names</li>
+<li>adding a visitor is like registering to a set of events, with implemented methods indicating the events the visitor wants to subscribe to</li>
+<li>calling all visitors with a specific method is like emitting the corresponding event</li>
+</ul>
+<p>All visitors can potentially expect a configuration object.</p>
+<p><strong>Important</strong>:</p>
+<p>Most visitors accepts one or more patterns to filter files that they should process. This uses the concept of <a href="http://gruntjs.com/api/grunt.file#globbing-patterns">glob patterns</a>.</p>
+<p>Visitors processing single files will not do anything with a file that doesn&#39;t match the specified pattern. If no pattern was given, the usual default one is chosen so that it takes into account all files (<code>**/*</code>), or all files that are relevant (for instance, for visitors processing JavaScript files, the default pattern will filter in only files with a <code>.js</code> extension).</p>
+<p><strong>Unless specified otherwise</strong>, the above applies to any visitor configuration.</p>
+<p>There are <a href="#built-in-visitors">built-in visitors</a>, but you can also <a href="#create-custom-visitors">create custom ones or use custom visitors from other libraries</a>.</p>
+<h1 id="events-visitors-methods">Events/visitors&#39; methods</h1>
+<p>Each method corresponds to a specific event during the whole packaging process.</p>
+<p>Common schedule:</p>
+<ol>
+<li><code>onInit</code> (when the packaging is initialized)</li>
+<li><code>onAddSourceFile</code> (when a source file has just been added), <code>onAddOutputFile</code> (when an output file has just been added): when loading the configuration, and anytime a new file is added. Visitors can indirectly trigger it at anytime, however it is more likely to happen during <code>onInit</code> for <code>onAddSourceFile</code>, and <code>onReachingBuildEnd</code> for <code>onAddOutputFile</code>.</li>
+<li><code>onBeforeBuild</code> (right before the packaging is going to be built), <code>onReachingBuildEnd</code> (when the build of the packaging doesn&#39;t have anymore output file to build): <code>onReachingBuildEnd</code> can be called multiple times in between, if the reacting visitors add additional output files to be built. The following nested level is applied for each output file making the packaging.<ol>
+<li><code>computeDependencies</code>: called to compute the dependencies of an input file (unlike other methods, this one has to be explicitly called, as done, for example, by the <a href="check-add-dependencies-checkdependencies-"><code>CheckDependencies</code> visitor</a>)</li>
+<li><code>onBeforeOutputFileBuild</code> (right before an output file is going to be built): the following nested level is applied for each input file making the packaging.<ol>
+<li><code>onWriteInputFile</code> (right before an input file is written):</li>
+</ol>
+</li>
+<li><code>onWriteOutputFile</code> (right before an output file is written), <code>onWriteJSOutputFile</code> (right before a JavaScript file is written)</li>
+<li><code>onAfterOutputFileBuild</code> (right after the content of an output file has been built)</li>
+</ol>
+</li>
+<li><code>onAfterBuild</code> (right after the build of the packaging has finished)</li>
+</ol>
+<h1 id="built-in-visitors">Built-in visitors</h1>
+<p>General purpose (unless specified otherwise, input files filter&#39;s default value is <code>[**/*]</code>):</p>
+<ul>
+<li><a href="#import-a-source-file-importsourcefile-">Import a source file</a></li>
+<li><a href="#import-source-files-importsourcefiles-">Import a set of source files</a></li>
+<li><a href="#insert-a-hash-into-the-output-file-name-hash-">Insert a hash into the output file name</a></li>
+<li><a href="#check-that-all-files-have-been-packaged-checkpackaged-">Check that all files have been packaged</a></li>
+<li><a href="#copy-unpackaged-files-copyunpackaged-">Copy unpackaged files</a></li>
+<li><a href="#replace-text-textreplace-">Replace text in files</a></li>
+<li><a href="#build-a-map-of-input-files-to-output-files-map-">Build a map of input files to output files</a></li>
+</ul>
+<p>JavaScript (unless specified otherwise, input files filter&#39;s default value is <code>[**/*.js]</code>):</p>
+<ul>
+<li><a href="#minify-a-javascript-file-jsminify-">Minify JavaScript files</a></li>
+<li><a href="#check-add-dependencies-checkdependencies-">Check/add dependencies</a></li>
+<li><a href="#check-global-variables-use-checkglobals-">Check global variables use</a></li>
+<li><a href="#remove-js-banner-jsstripbanner-">Remove comment banners in JavaScript files</a></li>
+</ul>
+<p>Aria Templates (unless specified otherwise, input files filter&#39;s default value is <code>[**/*]</code>):</p>
+<ul>
+<li><a href="#compile-atlas-templates-atcompiletemplates-">Compile Atlas templates</a></li>
+<li><a href="#compute-aria-templates-dependencies-atdependencies-">Compute Aria Templates dependencies</a></li>
+<li><a href="#remove-aria-templates-documentation-data-atremovedoc-">Remove Aria Templates documentation data</a></li>
+<li><a href="#build-an-aria-templates-url-map-aturlmap-">Build an Aria Templates URL Map</a></li>
+<li><a href="#normalize-aria-templates-skin-atnormalizeskin-">Normalize Aria Templates skin</a></li>
+</ul>
+<h1 id="import-a-source-file-importsourcefile-">Import a source file: <code>ImportSourceFile</code></h1>
+<p>Adds a source file to the packaging, according to the given configuration.</p>
+<p><strong>When</strong>: <code>onInit</code></p>
+<h2 id="configuration">Configuration</h2>
+<ul>
+<li><code>sourceFile</code>, <a href="http://devdocs.io/javascript/global_objects/string"><code>String</code></a>, <strong>required</strong>: the path of the file to import.</li>
+<li><code>targetBaseLogicalPath</code>, <a href="http://devdocs.io/javascript/global_objects/string"><code>String</code></a>, <strong>required</strong>: the directory path to set for the input file (purely logical, not the actual one on the storage device).</li>
+</ul>
+<h2 id="description">Description</h2>
+<p>A new source file is added to the packaging. Its relative path inside this packaging will be the one specified in <code>targetBaseLogicalPath</code>, while the actual path of the file - used to read its content - will be the given path <code>sourceFile</code>, resolved by passing this value to Node.js <a href="http://devdocs.io/node/path#path_path_resolve_from_to"><code>path.resolve</code></a> method.</p>
+<h1 id="import-source-files-importsourcefiles-">Import source files: <code>ImportSourceFiles</code></h1>
+<p>Adds source files to the packaging, regarding the given configuration.</p>
+<p><strong>When</strong>: <code>onInit</code></p>
+<h2 id="configuration">Configuration</h2>
+<ul>
+<li><code>sourceDirectory</code>, <a href="http://devdocs.io/javascript/global_objects/string"><code>String</code></a>, defaults to <code>&quot;&quot;</code> (empty): the directory from which to import the files.</li>
+<li><code>sourceFiles</code>, defaults to <code>[&#39;**/*&#39;]</code>: a set of patterns to filter the files to be imported. Passed to the method <a href="http://gruntjs.com/api/grunt.file#grunt.file.expand"><code>grunt.file.expand</code></a> as <code>patterns</code>.</li>
+<li><code>targetBaseLogicalPath</code>, <a href="http://devdocs.io/javascript/global_objects/string"><code>String</code></a>, defaults to <code>&quot;&quot;</code> (empty): the directory path to set for the input files (purely logical, not the actual one on the storage device).</li>
+</ul>
+<h2 id="description">Description</h2>
+<p>Files are imported from the given <code>sourceDirectory</code> and filtered with the given patterns, using <a href="http://gruntjs.com/api/grunt.file#grunt.file.expand"><code>grunt.file.expand</code></a>.</p>
+<p>The rest is very similar to the visitor <code>ImportSourceFile</code>: <code>targetBaseLogicalPath</code> is used as the logical path for the imported files inside the packaging, while it can be different from the actual <code>sourceDirectory</code> which is used solely to retrieve the content of the files when needed.</p>
+<h1 id="insert-a-hash-into-the-output-file-name-hash-">Insert a hash into the output file name: <code>Hash</code></h1>
+<p>Inserts a hash into an output file&#39;s name, according to the given pattern. The hash is computed with given options from the output file&#39;s content.</p>
+<p><strong>When</strong>: <code>onAfterOutputFileBuild</code></p>
+<h2 id="configuration">Configuration</h2>
+<ul>
+<li><code>files</code>: files filtering property</li>
+</ul>
+<p>Hash configuration:</p>
+<ul>
+<li><code>hash</code>, <a href="http://devdocs.io/javascript/global_objects/string"><code>String</code></a> or as expected by Node.js module <a href="http://devdocs.io/node/crypto"><code>crypto</code></a>, defaults to <code>&quot;md5&quot;</code>: the hash method to use (see below for more information about the possible ones).</li>
+<li><code>pattern</code>, <a href="http://devdocs.io/javascript/global_objects/string"><code>String</code></a>, defaults to <code>&quot;[name]-[hash][extension]&quot;</code>: the new output file pattern (see below for more information about its format).</li>
+</ul>
+<h4 id="the-hash-methods">The hash methods</h4>
+<p>The standard Node.js module <a href="http://devdocs.io/node/crypto"><code>crypto</code></a> is used to compute the hash, therefore the value of the property <code>hash</code> can be anything that it accepts.</p>
+<p>However, an additional hash method is supported: <code>&quot;murmur3&quot;</code>. For that, it uses the npm package <a href="https://github.com/garycourt/murmurhash-js"><code>murmurhash-js</code></a>.</p>
+<h4 id="the-pattern-format">The pattern format</h4>
+<p>The pattern defines the new basename of the file (no impact on the folder path).</p>
+<p>In order to build the new one, you have three variables available:</p>
+<ul>
+<li><code>name</code>: the basename of the file without its extension</li>
+<li><code>hash</code>: the value of the computed hash (this one should be used, this is the purpose of the visitor)</li>
+<li><code>extension</code>: the extension of the file, dot included</li>
+</ul>
+<p>In the pattern string, you can use those variables by surrounding them with brackets. There is nothing more specific when processing the pattern, no escaping, etc. Also, if you put an unsupported variable name between brackets, it won&#39;t be processed, the corresponding string including its brackets will be taken as is.</p>
+<h2 id="description">Description</h2>
+<p>Replaces the basename of the given output file, following the given or default pattern, normally including the hash value.</p>
+<p>The hash is computed either by the standard <a href="http://devdocs.io/node/crypto"><code>crypto</code></a> module of Node.js or by <a href="https://www.npmjs.org/package/murmurhash-js"><code>murmurhash-js</code></a>.</p>
+<p>In the first case, the method <a href="http://devdocs.io/node/crypto#crypto_crypto_createhash_algorithm"><code>createHash</code></a> is used, and the value of the configuration property <code>hash</code> is passed as is.</p>
+<p>The second case occurs if the value of this property resolves to <code>&quot;murmur3&quot;</code>. In this case, the method <code>murmur3</code> is used.</p>
+<!--
+    If one day it becomes possible to pass extra arguments, it is better to use this line instead of the previous one to explain the behaviour:
+    The second case occurs if the value of this property resolves to `"murmur3"`, __and has precedence__ (so if ever one day this is supported by Node.js, the npm package will still take care of it). In this case, the method `murmur3` is used.
+-->
+
+
+<p>In both cases, the content of the file is given as is to compute the hash. This content is read using the utility <a href="http://gruntjs.com/api/grunt.file#grunt.file.read"><code>grunt.file.read</code></a>, with an <code>encoding</code> set to <a href="http://devdocs.io/javascript/global_objects/null"><code>null</code></a>: raw data is used, to be sure to have unique hashes regarding the actual content (binary) of the file.</p>
+<h1 id="check-that-all-files-have-been-packaged-checkpackaged-">Check that all files have been packaged: <code>CheckPackaged</code></h1>
+<p>Checks that no file present as source file of the packaging was left unprocessed.</p>
+<p><strong>When</strong>: <code>onAfterBuild</code></p>
+<h2 id="configuration">Configuration</h2>
+<ul>
+<li><code>files</code>: files filtering property</li>
+</ul>
+<h2 id="description">Description</h2>
+<p>Will log an error with grunt (<a href="http://gruntjs.com/api/grunt.log#grunt.log.error-grunt.verbose.error"><code>grunt.log.error</code></a>) for each source file contained in the packaging, and which has no associated output file: that means it wasn&#39;t used at all even though it was configured to be part of the packaging.</p>
+<h1 id="copy-unpackaged-files-copyunpackaged-">Copy unpackaged files: <code>CopyUnpackaged</code></h1>
+<p>Copy files present in the packaging but not used to build any output file.</p>
+<p><strong>When</strong>: <code>onReachingBuildEnd</code></p>
+<h2 id="configuration">Configuration</h2>
+<ul>
+<li><code>files</code>: files filtering property</li>
+</ul>
+<p>Copy configuration:</p>
+<ul>
+<li><code>builder</code>, expects a builder configuration object, defaults to <code>{type: &#39;Copy&#39;}</code>: the builder configuration to use in order to copy the files.</li>
+<li><code>renameFunction</code>, <a href="http://devdocs.io/javascript/global_objects/function"><code>Function</code></a>, defaults to the identity function (it returns its first given argument, as is): a function used to rename the copied file.</li>
+</ul>
+<h2 id="description">Description</h2>
+<p>Will copy all the source files that the packaging contains, which were not used already to build other files.</p>
+<p>The file content is copied using the builder retrieved/created from the given <code>builder</code> configuration.</p>
+<p>What the visitor does however is only to create new output file instances, add them to the packaging, and configure each with the above mentioned builder. The name of the output files are taken from the names of the input files, possibly renamed using the given <code>renameFunction</code>.</p>
+<h1 id="replace-text-textreplace-">Replace text: <code>TextReplace</code></h1>
+<p>Modifies the content of the given input files by applying the given replacements.</p>
+<p><strong>When</strong>: <code>onWriteInputFile</code></p>
+<h2 id="configuration">Configuration</h2>
+<ul>
+<li><code>files</code>: files filtering property</li>
+</ul>
+<p>Replacement configuration:</p>
+<ul>
+<li><code>replacements</code>, <a href="http://devdocs.io/javascript/global_objects/array"><code>Array</code></a> of <a href="http://devdocs.io/javascript/global_objects/object"><code>Object</code></a> (see below for details about the replacement object), defaults to <code>[]</code> (no replacement): a list of replacements to be done.</li>
+</ul>
+<p>The replacement object:</p>
+<ul>
+<li><code>find</code>, <a href="http://devdocs.io/javascript/global_objects/string"><code>String</code></a> or <a href="http://devdocs.io/javascript/global_objects/regexp"><code>RegExp</code></a>, <strong>required</strong>: the pattern to find in the text and replace.</li>
+<li><code>replace</code>, <a href="http://devdocs.io/javascript/global_objects/string"><code>String</code></a>, <strong>required</strong>: the replacement text.</li>
+</ul>
+<h2 id="description">Description</h2>
+<p>Replacements are done using the native <a href="http://devdocs.io/javascript/global_objects/string/replace"><code>replace</code></a> method of <a href="http://devdocs.io/javascript/global_objects/string"><code>String</code></a>, passing <code>find</code> as first argument and <code>replace</code> as second.</p>
+<h1 id="build-a-map-of-input-files-to-output-files-map-">Build a map of input files to output files: <code>Map</code></h1>
+<p>Creates a map of input/output files and writes it on the disk.</p>
+<p>The keys of the map are paths to input files of the packaging, while values are paths to their associated output file.</p>
+<p><strong>When</strong>: <code>onAfterBuild</code></p>
+<h2 id="configuration">Configuration</h2>
+<p>Files filtering:</p>
+<ul>
+<li><code>sourceFiles</code>: source files to take into account in the map.</li>
+<li><code>outputFiles</code>: output files to take into account in the map.</li>
+</ul>
+<p>Map file configuration:</p>
+<ul>
+<li><code>mapFile</code>, <a href="http://devdocs.io/javascript/global_objects/string"><code>String</code></a>, defaults to <code>&#39;map.js&#39;</code>: the output name of the map file.</li>
+<li><code>mapFileEncoding</code>, <a href="http://devdocs.io/javascript/global_objects/string"><code>String</code></a>, defaults to <a href="http://devdocs.io/javascript/global_objects/null"><code>null</code></a> (uses <a href="http://gruntjs.com/api/grunt.file#grunt.file.defaultencoding"><code>grunt.file.defaultEncoding</code></a> instead): the encoding of the map file.</li>
+<li><code>outputDirectory</code>, <a href="http://devdocs.io/javascript/global_objects/string"><code>String</code></a>, defaults to <a href="http://devdocs.io/javascript/global_objects/null"><code>null</code></a> (uses the packaging&#39;s directory instead): the output directory of the map file.</li>
+</ul>
+<h2 id="description">Description</h2>
+<p>A source file is not necessarily included in the map, it needs to satisfy the following conditions:</p>
+<ul>
+<li>it is associated to an output file</li>
+<li>its path matches the given <code>sourceFiles</code> pattern</li>
+<li>its associated output file&#39;s path matches the given <code>outputFiles</code> pattern</li>
+</ul>
+<p>If the file is actually included, it is then added to the map. The paths used to make the key/value pairs are normalized, which ensures that the separator used is the slash (<code>/</code>) character. It uses <a href="http://devdocs.io/node/path#path_path_normalize_p"><code>path.normalize</code></a> behind.</p>
+<p>Finally, it serializes the built map using standard <a href="http://devdocs.io/javascript/global_objects/json/stringify"><code>JSON.stringify</code></a> method without any further argument.</p>
+<p>The resulting string is output to a file whose path is built from the joining of the <code>outputDirectory</code> and the <code>mapFile</code> file name.</p>
+<h1 id="minify-a-javascript-file-jsminify-">Minify a JavaScript file: <code>JSMinify</code></h1>
+<p><strong>When</strong>: <code>onWriteInputFile</code>, <code>onWriteJSOutputFile</code></p>
+<h2 id="configuration">Configuration</h2>
+<p>Files filtering:</p>
+<ul>
+<li><code>files</code>: global filter</li>
+<li><code>outputFiles</code>: output files to take into account</li>
+<li><code>inputFiles</code>: input files to take into account</li>
+</ul>
+<p>Minification configuration:</p>
+<ul>
+<li><code>skipJSConcatParts</code>, <a href="http://devdocs.io/javascript/global_objects/boolean"><code>Boolean</code></a>, defaults to <code>true</code>: if <code>true</code>, will not process input files part of an output file built with the built-in builder <code>JSConcat</code>. Useful since it doesn&#39;t make much sense to minify each single part, but rather the resulting output file as a whole.</li>
+<li><code>compress</code>, <code>false</code> or as expected by <code>UglifyJS.Compressor</code>: the UglifyJS compressor configuration, used to compress the AST. If set to <code>false</code>, no compression will be done, otherwise an instance of the <code>UglifyJS.Compressor</code> will be created with the provided value (which is set to <code>{}</code> if the value is falsy).</li>
+<li><code>mangle</code>, <code>false</code> or as expected by UglifyJS AST method <code>mangle_names</code>: the name mangling configuration. If set to <code>false</code>, no mangling will be done, otherwise the mangling method will be created with the provided value (which is set to <code>{}</code> if the value is falsy).</li>
+<li><code>output</code>, <a href="http://devdocs.io/javascript/global_objects/object"><code>Object</code></a> (see below), defaults to <code>{ascii_only: true}</code> if value evaluates to <code>false</code>: the output options to customize the generation of a string from the AST.</li>
+</ul>
+<p><code>output</code> properties:</p>
+<ul>
+<li><code>comments</code>, <a href="http://devdocs.io/javascript/global_objects/boolean"><code>Boolean</code></a>, defaults to <code>false</code>: if <code>true</code>, removes the following properties (if they exist) from every node of the AST, before the serialization: <code>node.start._comments_dumped</code>, <code>node.end._comments_dumped</code></li>
+</ul>
+<h2 id="description">Description</h2>
+<h3 id="-onwriteinputfile-"><code>onWriteInputFile</code></h3>
+<p>Will minify the input file AST if:</p>
+<ul>
+<li>it matches the <code>files</code> filter</li>
+<li>it matches the <code>inputFiles</code> filter</li>
+<li>in case <code>skipJSConcatParts</code> is <code>true</code>: it is not part of an output file whose builder is an instance of the built-in builder <code>JSConcat</code></li>
+</ul>
+<p>It tries to retrieve the AST content of the file and if there is one compresses it. See below section for more information.</p>
+<p>It will set the new AST along with the given <code>output</code> configuration.</p>
+<h3 id="-onwritejsoutputfile-"><code>onWriteJSOutputFile</code></h3>
+<p>Compresses the given AST in forwarded content wrapper object, and sets the latter&#39;s output <code>options</code> using the one passed in configuration (under <code>output</code> property).</p>
+<p>See below section for more information.</p>
+<h2 id="ast-compression">AST compression</h2>
+<p>To compress the AST, two things are used:</p>
+<ul>
+<li>the compressor</li>
+<li>the names mangling</li>
+</ul>
+<p>Both are used only if a corresponding configuration object has been created.</p>
+<p>If the <code>compressor</code> configuration is not <code>false</code>, its computed value is forwarded to the constructor <code>UglifyJS.Compressor</code> to build a new compressor object, and then used to compress the AST.</p>
+<p>If the <code>mangle</code> configuration is not <code>false</code>, its computed value is forwarded to the method <code>mangle_names</code> of the AST object in order to mangle the names.</p>
+<h1 id="check-add-dependencies-checkdependencies-">Check/Add dependencies: <code>CheckDependencies</code></h1>
+<p>Checks/adds the dependencies of all the source files of a package. <strong>It is important to use this visitor in order to actually fetch and add dependencies to a package</strong>.  The dependencies are computed by calling the <code>computeDependencies</code> method of any visitor implementing it.</p>
+<p><strong>When</strong>: <code>onBeforeOutputFileBuild</code></p>
+<h2 id="configuration">Configuration</h2>
+<ul>
+<li><code>files</code>: files filtering property</li>
+</ul>
+<p>Dependencies check:</p>
+<ul>
+<li><code>noCircularDependencies</code>, <a href="http://devdocs.io/javascript/global_objects/boolean"><code>Boolean</code></a>, defaults to <code>true</code>: whether to allow <a href="https://en.wikipedia.org/wiki/Circular_dependency">circular dependencies</a> or not.</li>
+<li><code>addUnpackagedDependencies</code>, <a href="http://devdocs.io/javascript/global_objects/boolean"><code>Boolean</code></a>, defaults to <code>true</code>: whether to add missing dependencies or not.</li>
+<li><code>unpackagedDependenciesError</code>, <a href="http://devdocs.io/javascript/global_objects/boolean"><code>Boolean</code></a>, defaults to <code>true</code>: if unpackaged dependencies are not added (<code>addUnpackagedDependencies</code> is <code>false</code>), whether to log an error with grunt in case of unpackaged dependencies or not.</li>
+</ul>
+<p>Ordering:</p>
+<ul>
+<li><code>checkPackagesOrder</code>, <a href="http://devdocs.io/javascript/global_objects/boolean"><code>Boolean</code></a>, defaults to <code>true</code>: whether dependencies should be forced to be included by the package or one that has been built before - in other words to avoid it to be packaged <strong>after</strong>  - or not. Indeed, in some cases some will be included after, as dependencies of other output files.</li>
+<li><code>reorderFiles</code>, <a href="http://devdocs.io/javascript/global_objects/boolean"><code>Boolean</code></a>, defaults to <code>true</code>: controls the order of source files contained by the package: whether to keep the order in which source files have been encountered while processing dependencies, or to let the latter at the end of the list, as they were appended.</li>
+</ul>
+<h2 id="description">Description</h2>
+<p>For each source file making this package, the dependencies are processed. See section below to know about the dependencies processing of a single file.</p>
+<p>Once all dependencies have been processed, likely adding source files to the package, the work is over. However, if <code>reorderFiles</code> is <code>true</code>, the list of source files is put in the order in which dependencies have been encountered during the whole process.</p>
+<h3 id="single-dependency-processing">Single dependency processing</h3>
+<p>The dependencies processing is recursive, which means that as long as a file has dependencies, its dependencies will be looked for other dependencies.</p>
+<p>During this lookup, circular dependencies are checked: any file that depends on a file which has already been processed is considered to have a circular dependency on the latter. If <code>noCircularDependencies</code> is <code>true</code>, anytime a circular dependency is found an error is logged using <a href="http://gruntjs.com/api/grunt.log#grunt.log.error-grunt.verbose.error"><code>grunt.log.error</code></a> specifying the list of concerned dependencies, and the current dependency processing is stopped.</p>
+<p>Already processed files are skipped to avoid useless computations.</p>
+<p>If a currently processed dependency is already associated to <strong>another</strong> package <strong>which has not yet been built</strong> and <code>checkPackagesOrder</code> is <code>true</code>, an error message will be logged using <a href="http://gruntjs.com/api/grunt.log#grunt.log.error-grunt.verbose.error"><code>grunt.log.error</code></a> to tell that a dependency file will be packaged after, and the current dependency processing is stopped.</p>
+<p>If the currently processed dependency is not part of any package yet but <code>addUnpackagedDependencies</code> is <code>false</code>, the current dependency processing is stopped. Additionally, if <code>unpackagedDependenciesError</code> is <code>true</code>, and error is logged using <a href="http://gruntjs.com/api/grunt.log#grunt.log.error-grunt.verbose.error"><code>grunt.log.error</code></a> specifying the unpackaged dependency.</p>
+<p>Finally, if everything went fine, the dependency is added to the package if it wasn&#39;t part of any other.</p>
+<h1 id="check-global-variables-use-checkglobals-">Check global variables use: <code>CheckGlobals</code></h1>
+<p>Checks global variables use.</p>
+<p><strong>When</strong>: <code>onWriteInputFile</code></p>
+<h2 id="configuration">Configuration</h2>
+<ul>
+<li><code>files</code>: files filtering property</li>
+</ul>
+<p>Globals configuration:</p>
+<ul>
+<li><code>strict</code>, <a href="http://devdocs.io/javascript/global_objects/boolean"><code>Boolean</code></a>, defaults to <code>true</code>: whether to use strict checking or not. In strict mode, a global must be explicitly allowed to be considered as accepted, while otherwise it must only not be forbidden.</li>
+</ul>
+<p>Globals permissions:</p>
+<ol>
+<li><code>allowStdJSGlobals</code>, <a href="http://devdocs.io/javascript/global_objects/boolean"><code>Boolean</code></a>, defaults to <code>true</code>: whether to allow standard JavaScript globals or not (see below for a list).</li>
+<li><code>allowCommonJSGlobals</code>, <a href="http://devdocs.io/javascript/global_objects/boolean"><code>Boolean</code></a>, defaults to <code>false</code>: whether to allow global defined by <a href="http://wiki.commonjs.org/wiki/CommonJS">CommonJS</a> or not (see below for a list).</li>
+<li><code>allowedGlobals</code>, <a href="http://devdocs.io/javascript/global_objects/array"><code>Array</code></a> of <a href="http://devdocs.io/javascript/global_objects/string"><code>String</code></a>, defaults to <a href="http://devdocs.io/javascript/global_objects/undefined"><code>undefined</code></a>: if specified, the globals listed here are set as being allowed.</li>
+<li><code>forbiddenGlobals</code>, <a href="http://devdocs.io/javascript/global_objects/array"><code>Array</code></a> of <a href="http://devdocs.io/javascript/global_objects/string"><code>String</code></a>, defaults to <a href="http://devdocs.io/javascript/global_objects/undefined"><code>undefined</code></a>: if specified, the globals listed here are set as being forbidden.</li>
+</ol>
+<p>The list above is ordered, since all these properties are processed in this order, with any of the possible override. So for instance listed forbidden globals have precedence over allowed one.</p>
+<p>Here are the lists of globals per category:</p>
+<ul>
+<li>Standard (<code>allowStdJSGlobals</code>):<ul>
+<li><a href="http://devdocs.io/javascript/global_objects/math"><code>Math</code></a></li>
+<li><a href="http://devdocs.io/javascript/global_objects/regexp"><code>RegExp</code></a></li>
+<li><a href="http://devdocs.io/javascript/global_objects/array"><code>Array</code></a></li>
+<li><a href="http://devdocs.io/javascript/global_objects/date"><code>Date</code></a></li>
+<li><a href="http://devdocs.io/javascript/global_objects/number"><code>Number</code></a></li>
+<li><a href="http://devdocs.io/javascript/global_objects/function"><code>Function</code></a></li>
+<li><a href="http://devdocs.io/javascript/global_objects/string"><code>String</code></a></li>
+<li><a href="http://devdocs.io/javascript/global_objects/error"><code>Error</code></a></li>
+<li><a href="http://devdocs.io/javascript/global_objects/object"><code>Object</code></a></li>
+<li><a href="http://devdocs.io/javascript/global_objects/parseint"><code>parseInt</code></a></li>
+<li><a href="http://devdocs.io/javascript/global_objects/parsefloat"><code>parseFloat</code></a></li>
+<li><a href="http://devdocs.io/javascript/global_objects/isnan"><code>isNaN</code></a></li>
+<li><a href="http://devdocs.io/javascript/global_objects/isfinite"><code>isFinite</code></a></li>
+<li><a href="http://devdocs.io/javascript/global_objects/encodeuricomponent"><code>encodeURIComponent</code></a></li>
+<li><a href="http://devdocs.io/javascript/global_objects/decodeuricomponent"><code>decodeURIComponent</code></a></li>
+<li><a href="http://devdocs.io/javascript/global_objects/encodeuri"><code>encodeURI</code></a></li>
+<li><a href="http://devdocs.io/javascript/global_objects/decodeuri"><code>decodeURI</code></a></li>
+<li><code>escape</code></li>
+<li><code>unescape</code></li>
+<li><a href="http://devdocs.io/javascript/global_objects/eval"><code>eval</code></a></li>
+<li><a href="http://devdocs.io/javascript/global_objects/nan"><code>NaN</code></a></li>
+<li><a href="http://devdocs.io/javascript/global_objects/undefined"><code>undefined</code></a></li>
+<li><a href="http://devdocs.io/javascript/global_objects/infinity"><code>Infinity</code></a></li>
+</ul>
+</li>
+<li><a href="http://wiki.commonjs.org/wiki/CommonJS">CommonJS</a> (<code>allowCommonJSGlobals</code>):<ul>
+<li><code>module</code></li>
+<li><code>exports</code></li>
+<li><code>require</code></li>
+<li><code>__filename</code></li>
+<li><code>__dirname</code></li>
+</ul>
+</li>
+</ul>
+<h2 id="description">Description</h2>
+<p>Everytime a forbidden global is used in one of those files, an error will be logged using grunt (<a href="http://gruntjs.com/api/grunt.log#grunt.log.error-grunt.verbose.error"><code>grunt.log.error</code></a>), specifying which global was used and in which file.</p>
+<h1 id="remove-js-banner-jsstripbanner-">Remove JS Banner: <code>JSStripBanner</code></h1>
+<p>Removes from the content of the file what is considered as a banner; content is considered itself as JavaScript source code.</p>
+<p><strong>When</strong>: <code>onWriteInputFile</code></p>
+<h2 id="configuration">Configuration</h2>
+<ul>
+<li><code>files</code>: files filtering property</li>
+</ul>
+<p>Banners types:</p>
+<ul>
+<li><code>line</code>, <a href="http://devdocs.io/javascript/global_objects/boolean"><code>Boolean</code></a>, defaults to <code>false</code>: whether single line comments should be removed as well.</li>
+<li><code>block</code>, <a href="http://devdocs.io/javascript/global_objects/boolean"><code>Boolean</code></a>, defaults to <code>false</code>: whether all block comments should be removed unconditionally, or block comments with a specific syntax should be preserved.</li>
+</ul>
+<h2 id="implemented-methods">Implemented methods</h2>
+<p>A banner is a piece of comment put on top of the file, before any actual source code.</p>
+<p>Here are the kind of comments removed, depending on the given configuration:</p>
+<ul>
+<li><code>line</code> is <code>true</code>: <code>// ...</code> leading comments are removed</li>
+<li><code>block</code> is <code>true</code>: <code>/* ... */</code> leading comments are removed</li>
+<li><code>block</code> is <code>false</code>: <code>/* ... */</code> leading comments are removed, except those with an extra exclamation mark, like this: <code>/*! ... */</code></li>
+</ul>
+<p>You can see that anyway one type of block comments will be removed.</p>
+<h1 id="compile-atlas-templates-atcompiletemplates-">Compile Atlas templates: <code>ATCompileTemplates</code></h1>
+<p>Compiles Atlas templates.</p>
+<p><strong>When</strong>: <code>onWriteInputFile</code></p>
+<h2 id="configuration">Configuration</h2>
+<ul>
+<li><code>files</code>: files filtering property</li>
+</ul>
+<h2 id="description">Description</h2>
+<p>In addition to the given <code>files</code> filter, if the file does not correspond to an actual template (we determine it if we can&#39;t find an associated parser), the file won&#39;t be processed.</p>
+<h1 id="compute-aria-templates-dependencies-atdependencies-">Compute Aria Templates dependencies: <code>ATDependencies</code></h1>
+<p>Computes the dependencies of the given input file, and adds them to the latter.</p>
+<p><strong>When</strong>: <code>computeDependencies</code></p>
+<h2 id="configuration">Configuration</h2>
+<ul>
+<li><code>files</code>: files filtering property</li>
+</ul>
+<p>Options:</p>
+<ul>
+<li><code>mustExist</code>, <a href="http://devdocs.io/javascript/global_objects/boolean"><code>Boolean</code></a>, defaults to <code>true</code>: whether to be strict or not when finding dependencies. If <code>true</code>, determined dependencies must be found in the packaging.</li>
+<li><code>externalDependencies</code>, <a href="http://devdocs.io/javascript/global_objects/array"><code>Array</code></a> of <a href="http://devdocs.io/javascript/global_objects/string"><code>String</code></a>, defaults to <code>[]</code>: list of paths of dependencies to consider as external, and therefore which do not have to be inside the packaging.</li>
+</ul>
+<h2 id="description">Description</h2>
+<p>Dependencies of the given input file are computed, and then actually specified as being dependencies of the file.</p>
+<p>Note that dependencies must be part of the packaging already, either already added to it or present in its source directory.</p>
+<p>If a dependency could not be found, is not part of the specified <code>externalDependencies</code> and if <code>mustExist</code> is <code>true</code>, then an error is logged.</p>
+<h1 id="remove-aria-templates-documentation-data-atremovedoc-">Remove Aria Templates documentation data: <code>ATRemoveDoc</code></h1>
+<p>Removes chosen documentation data, which has an impact on package&#39;s size.</p>
+<p><strong>When</strong>: <code>onWriteInputFile</code></p>
+<h2 id="configuration">Configuration</h2>
+<ul>
+<li><code>files</code>, defaults to <code>[&#39;**/*.js&#39;]</code> (all JavaScript files): files filtering property</li>
+</ul>
+<p>Elements to remove:</p>
+<ul>
+<li><code>removeBeanDescription</code>, <a href="http://devdocs.io/javascript/global_objects/boolean"><code>Boolean</code></a>, defaults to <code>true</code>: remove the description of properties in Bean definitions.</li>
+<li><code>removeEventDescription</code>, <a href="http://devdocs.io/javascript/global_objects/boolean"><code>Boolean</code></a>, defaults to <code>true</code>: remove the description of events in Aria object definitions.</li>
+<li><code>removeErrorStrings</code>, <a href="http://devdocs.io/javascript/global_objects/boolean"><code>Boolean</code></a>, defaults to <code>false</code>: remove the error strings. <strong>See description for details</strong>.</li>
+<li><code>replaceStaticsInErrors</code>, <a href="http://devdocs.io/javascript/global_objects/boolean"><code>Boolean</code></a>, defaults to <code>false</code>:  <strong>see description for details</strong>.</li>
+</ul>
+<h2 id="description">Description</h2>
+<p>Error strings are removed from:</p>
+<ul>
+<li><code>$statics</code> property of Aria Templates class definitions</li>
+<li>in function calls:<ul>
+<li><code>$logError</code></li>
+<li><code>$logWarn</code></li>
+<li><code>$logInfo</code></li>
+<li><code>_logError</code></li>
+</ul>
+</li>
+</ul>
+<h1 id="build-an-aria-templates-url-map-aturlmap-">Build an Aria Templates URL Map: <code>ATUrlMap</code></h1>
+<p>Builds a <a href="http://ariatemplates.com/usermanual/latest/url_handling">URL map</a>, and exports it into an executable piece of JavaScript code, directly using the <a href="http://ariatemplates.com/aria/guide/apps/apidocs/#aria.core.DownloadMgr:updateUrlMap:method"><code>aria.core.DownloadMgr.updateUrlMap</code></a> method with this map.</p>
+<p><strong>When</strong>: <code>onAfterBuild</code></p>
+<h2 id="configuration">Configuration</h2>
+<p>Files filtering:</p>
+<ul>
+<li><code>sourceFiles</code>: source files to take into account in the map</li>
+<li><code>outputFiles</code>: output files to take into account in the map</li>
+<li><code>onlyATMultipart</code>, <a href="http://devdocs.io/javascript/global_objects/boolean"><code>Boolean</code></a>, defaults to <code>true</code>: if <code>true</code>, only takes into account output files built with the <code>ATMultipart</code> builder.</li>
+</ul>
+<p>Output map file specifications:</p>
+<ul>
+<li><code>mapFile</code>, <a href="http://devdocs.io/javascript/global_objects/string"><code>String</code></a>, defaults to <code>&quot;map.js&quot;</code>: name of the file into which the map should be output.</li>
+<li><code>mapFileEncoding</code>, <a href="http://devdocs.io/javascript/global_objects/string"><code>String</code></a>, defaults to <a href="http://devdocs.io/javascript/global_objects/null"><code>null</code></a> (uses <a href="http://gruntjs.com/api/grunt.file#grunt.file.defaultencoding"><code>grunt.file.defaultEncoding</code></a> instead): the encoding of the file to which the map is output.</li>
+<li><code>outputDirectory</code>, <a href="http://devdocs.io/javascript/global_objects/string"><code>String</code></a>, defaults to <a href="http://devdocs.io/javascript/global_objects/null"><code>null</code></a> (uses the packaging&#39;s directory instead): the directory of the map file.</li>
+<li><code>append</code>, <a href="http://devdocs.io/javascript/global_objects/boolean"><code>Boolean</code></a>, defaults to <code>true</code>: if <code>true</code>, appends to the resolved map file if it exists, otherwise always creates a new one.</li>
+</ul>
+<p>Compression of the map/code:</p>
+<ul>
+<li><code>starCompress</code>, <em>glob pattern</em>, defaults to <code>[&quot;**/*&quot;]</code> (all files): filters for files accepting to be star compressed (see the full description below for more about this concept).</li>
+<li><code>starStarCompress</code>, <em>glob pattern</em>, defaults to <code>[&quot;**/*&quot;]</code> (all files): filters for files accepting to be star-star compressed (see the full description below for more about this concept).</li>
+<li><code>minifyJS</code>, <a href="http://devdocs.io/javascript/global_objects/boolean"><code>Boolean</code></a>, defaults to <code>true</code>: if <code>true</code>, the generated code will be minified using <code>UglifyJS.minify</code> and the given/processed <code>minifyJSOptions</code>. Moreover.</li>
+<li><code>minifyJSOptions</code>, <a href="http://devdocs.io/javascript/global_objects/object"><code>Object</code></a> with specific properties (see below), defaults to <code>{}</code>: the processed options will always have at least the following properties: <code>{fromString: true}</code>.</li>
+<li><code>jsonIndent</code>, <a href="http://devdocs.io/javascript/global_objects/string"><code>String</code></a>, defaults to <em>4 spaces</em>: the indentation string to use when serializing the map using <a href="http://devdocs.io/javascript/global_objects/json/stringify"><code>JSON.stringify</code></a>. It is not relevant (unused) when <code>minifyJS</code> is <code>true</code>.</li>
+</ul>
+<h2 id="description">Description</h2>
+<p>For a quick recap, an Aria Templates URL map maps classpaths to the actual file in which corresponding files are stored. Indeed, it allows to override the default behavior where one classpath corresponds exactly to one file path.</p>
+<p>Example of such a map:</p>
+<div class='snippet'><pre><code class="lang-json">{
+    "<span class="attribute">A</span>": <span class="value">{
+        "<span class="attribute">B</span>": <span class="value">{
+            "<span class="attribute">X</span>": <span class="value"><span class="string">"output/XY.js"</span></span>,
+            "<span class="attribute">Y</span>": <span class="value"><span class="string">"output/XY.js"</span></span>,
+            "<span class="attribute">Z</span>": <span class="value"><span class="string">"Z.js"</span>
+        </span>}
+    </span>}
+</span>}</code></pre></div>
+<p>(note that the output files names are always normalized and forced to use forward slashes).</p>
+<p>Now, here is the process.</p>
+<p>The source files contained in the packaging are iterated over.</p>
+<p>A given source file is added to the map only if it matches the following criteria:</p>
+<ol>
+<li>it has an associated output file</li>
+<li><code>onlyATMultipart</code> is <code>false</code> or the file is used by the <code>ATMultipart</code> builder to build its associated output file</li>
+<li>it matches the given <code>sourceFiles</code> pattern</li>
+<li>its associated output file matches the given <code>outputFiles</code> pattern</li>
+<li>its associated output file&#39;s path is not equal to the given <code>mapFile</code> path (normalized)</li>
+</ol>
+<p>Once the map is built, if the given option <code>starCompress</code> evaluates to <code>true</code>, the star compression is applied, and afterwards star-star compression is applied if <code>starStarCompress</code> evaluates to <code>true</code>. See sections below for more information about these concepts.</p>
+<p>Then, the map is serialized, and the piece of code is generated, generating a call to <code>aria.core.DownloadMgr.updateUrlMap</code> giving the previously serialized map as unique argument.</p>
+<p>If <code>JSMinify</code> is <code>true</code>, the resulting piece of code is minified using <code>UglifyJS.minify</code>.</p>
+<p>Then, the piece of code is output to the file corresponding to the joining of the <code>outputDirectory</code> path and the <code>mapFile</code>. If the file already exists, it is overwritten if <code>append</code> is <code>false</code>, otherwise the code is appended. If the file doesn&#39;t exist yet, it is created with the piece of code as content. Note that <code>mapFileEncoding</code> is used anyway, whether the file existed or not.</p>
+<h3 id="star-compression">Star compression</h3>
+<p>The goal of the map is to find the output file corresponding to a given classpath.</p>
+<p>If we take the example above, we can see that <code>A.B.Z</code> will resolve to <code>Z.js</code>, but both <code>A.B.X</code> and <code>A.B.Y</code> will resolve to <code>XY.js</code>.</p>
+<p>The star compression takes in a given module a group of classes mapped to the same output file, and removes all those mappings to replace them with a single generic one named <code>*</code>. This becomes a fallback when the class is not explicitly mapped.</p>
+<p>With our previous example, this would give:</p>
+<div class='snippet'><pre><code class="lang-json">{
+    "<span class="attribute">A</span>": <span class="value">{
+        "<span class="attribute">B</span>": <span class="value">{
+            "<span class="attribute">*</span>": <span class="value"><span class="string">"output/XY.js"</span></span>,
+            "<span class="attribute">Z</span>": <span class="value"><span class="string">"Z.js"</span>
+        </span>}
+    </span>}
+</span>}</code></pre></div>
+<p>For best efficiency, the highest numbers of mappings will be removed, which means the star fallback will map to the output file with the highest number of classes.</p>
+<p><strong>Note that to avoid a base classpath to be compressed - which means to receive a <em>star</em> fallback - you can use the filter <code>starCompress</code>.</strong></p>
+<h3 id="star-star-compression">Star-star compression</h3>
+<p>The goal of star-star compression is the same: to gain some spaces in the map be grouping some entries.</p>
+<p>The difference here is that it spans across several hierarchies of modules. Given another example:</p>
+<div class='snippet'><pre><code class="lang-json">{
+    "<span class="attribute">A</span>": <span class="value">{
+        "<span class="attribute">B</span>": <span class="value">{
+            "<span class="attribute">*</span>": <span class="value"><span class="string">"P.js"</span>
+        </span>}
+    </span>}
+</span>}</code></pre></div>
+<p>this would give:</p>
+<div class='snippet'><pre><code class="lang-json">{
+    "<span class="attribute">**</span>": <span class="value"><span class="string">"P.js"</span>
+</span>}</code></pre></div>
+<p><strong>Note that to avoid a base classpath to be compressed - which means to receive a <em>star-star</em> fallback - you can use the filter <code>starStarCompress</code>.</strong></p>
+<h1 id="normalize-aria-templates-skin-atnormalizeskin-">Normalize Aria Templates skin: <code>ATNormalizeSkin</code></h1>
+<p>Normalizes Aria Templates skin definitions.</p>
+<p><strong>When</strong>: <code>onWriteInputFile</code></p>
+<h2 id="configuration">Configuration</h2>
+<ul>
+<li><code>files</code>, defaults to <code>[&#39;**/*.js&#39;]</code> (all JavaScript files): files filtering property</li>
+</ul>
+<h3 id="normalization-options">Normalization options</h3>
+<ul>
+<li><code>jsonIndent</code>, <a href="http://devdocs.io/javascript/global_objects/string"><code>String</code></a>, defaults to <em>4 spaces</em>: the indentation string to use.</li>
+<li><code>strict</code>, <a href="http://devdocs.io/javascript/global_objects/boolean"><code>Boolean</code></a>, defaults to <code>false</code>: whether to log actual error messages if there are errors, or to simply log warnings.</li>
+</ul>
+<h2 id="description">Description</h2>
+<p>First note that in addition to the given <code>files</code> filter, files who don&#39;t define an Aria class with a classpath corresponding to the skin (<a href="http://ariatemplates.com/aria/guide/apps/apidocs/#aria.widgets.AriaSkin"><code>aria.widgets.AriaSkin</code></a>) will be skipped as well.</p>
+<p>Then, it normalizes the skin definition using <a href="http://ariatemplates.com/aria/guide/apps/apidocs/#aria.widgets.AriaSkinNormalization:normalizeSkin:method"><code>aria.widgets.AriaSkinNormalization.normalizeSkin</code></a>, replacing the content of the file if done with success, logging an error otherwise.</p>
+<h1 id="create-custom-visitors">Create custom visitors</h1>
+<p>It is possible to create custom visitors and use them in your atpackager configurations. As an example, you can take a look at the <a href="https://github.com/ariatemplates/noder-js/tree/master/build/visitors">custom visitors created for noderJS</a>.</p>
+<h2 id="how-to-declare-a-custom-visitor">How to declare a custom visitor</h2>
+<p>You simply need to create file <code>atpackager.js</code> <strong>at the root of your project</strong> which looks like this</p>
+<div class='snippet'><pre><code class="lang-javascript">module.exports = <span class="function"><span class="keyword">function</span><span class="params">(atpackager)</span> {</span>
+    <span class="built_in">require</span>(<span class="string">"./atpackager"</span>).init(atpackager);
+    atpackager.visitors.MyFirstVisitor = <span class="built_in">require</span>(<span class="string">"./myVisitorsPath/MyFirstVisitor"</span>);
+    atpackager.visitors.MySecondVisitor = <span class="built_in">require</span>(<span class="string">"./myVisitorsPath/MySecondVisitor"</span>);
+};</code></pre></div>
+<p>This is what we call a <strong>plugin</strong> for atpackager. It is important that you put the plugin file at the root of your project if you want external projects to use the custom visitors declared therein.
+Plugins allow you also to declare <a href="./builders.html#create-custom-builders">custom builders</a>.</p>
+<h2 id="how-to-use-a-custom-visitor">How to use a custom visitor</h2>
+<p>If you have created a custom visitor and declared it in a plugin, you can use it within your project by loading the plugin</p>
+<div class='snippet'><pre><code class="lang-javascript"><span class="built_in">require</span>(<span class="string">'atpackager'</span>).loadPlugin(<span class="string">'./atpackager'</span>);</code></pre></div>
+<p>If you want to load atpackager plugins defined in a dependency (for example in <a href="http://noder-js.ariatemplates.com/"><code>noderJS</code></a>) in order to use the custom visitors they declare, you can use</p>
+<div class='snippet'><pre><code class="lang-javascript"><span class="built_in">require</span>(<span class="string">'atpackager'</span>).loadNpmPlugin(<span class="string">'noder-js'</span>);</code></pre></div>
+<p>This will load plugin <code>atpackager.js</code> at the root of <code>noder-js</code> dependency.</p>
+</article>
+					</div>
+				</div>
+			</section>
+		</div>
+		<footer id="footer">
+			<section class="content legal">
+			© 2012 Aria Templates is licensed under Apache 2.0 license. See our <a href="http://ariatemplates.com/license">licensing page</a>
+			</section>
+		</footer>
+		<script>
+			(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+			(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+			m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+			})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+			ga('create', 'UA-29575860-4', 'ariatemplates.com');
+			ga('send', 'pageview');
+		</script>
+	</body>
+</html>
