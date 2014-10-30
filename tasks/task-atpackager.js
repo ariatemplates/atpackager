@@ -32,7 +32,8 @@ module.exports = function (grunt) {
                 ATBootstrapFile : 'aria/bootstrap.js',
                 ATDirectories : [],
                 ATDebug : false,
-                ATAppEnvironment : {}
+                ATAppEnvironment : {},
+                onlySourceFiles : false
             });
 
             currentPackaging.ATBootstrapFile = options.ATBootstrapFile;
@@ -45,7 +46,7 @@ module.exports = function (grunt) {
             currentPackaging.addVisitors(options.visitors);
             currentPackaging.init();
             currentPackaging.addSourceFiles(options.sourceFiles);
-            currentPackaging.addPackages(options.packages);
+            currentPackaging.addPackages(options.packages, options.onlySourceFiles);
             currentPackaging.build();
         } catch (e) {
             grunt.log.error(e);

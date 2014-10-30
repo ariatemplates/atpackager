@@ -16,12 +16,14 @@ module.exports = function (grunt) {
 				options: {
 					// sourceDirectories,
 					// outputDirectory,
+					// ATDirectories,
 					// ATBootstrapFile,
 					// ATAppEnvironment,
 					// sourceFiles,
 					// defaultBuilder,
 					// packages,
-					// visitors
+					// visitors,
+					// onlySourceFiles
 				}
 			}
 		}
@@ -121,6 +123,9 @@ Therefore a package definition is made of the following properties:
 * `builder`: the [builder configuration](#builder-configuration) to use to create the output file from the input files.
 * `files`: the list of input files to be processed by the `builder` to create the output file with given `name`
 
+If the list of included files contains some files that are excluded from the global `sourceFiles`, they will be added or not according to the value of option `onlySourceFiles`: if set to true, the extra files required by the package will not be added.
+The default value for `onlySourceFiles` is `false`. It is always advisable to set it to `true` in order to limit the recursive inspection of the source directories in search for files to add.
+
 Note that this list of input `files` will possibly be extended by some specific visitors if needed.
 
 Example of a package definition:
@@ -196,6 +201,7 @@ See [here](./visitors.html) for a detailed list of built-in visitors.
 ## Aria Templates specific
 
 The `ATBootstrapFile` option expects the path of a custom bootstrap file to be used to load Aria Templates. This path can be relative to the `sourceDirectories` configured for the packaging.
+However, it is better to set property `ATDirectories` and avoid to include the directory containing Aria Templates framework from the general sources.
 
 Having such a custom bootstrap file can be necessary in the case of pre-compilation of Atlas templates. Templates pre-compilation can depend on some application environment variables. In order to set the desired environment variables, there are two options:
 
