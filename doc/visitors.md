@@ -668,8 +668,8 @@ __When__: `onWriteInputFile`
 
 ### Normalization options
 
-* `jsonIndent`, [`String`](http://devdocs.io/javascript/global_objects/string), defaults to _4 spaces_: the indentation string to use.
 * `strict`, [`Boolean`](http://devdocs.io/javascript/global_objects/boolean), defaults to `false`: whether to log actual error messages if there are errors, or to simply log warnings.
+* `outputOptions`, [`Object`](http://devdocs.io/javascript/global_objects/object), defaults to `{beautify: true, quote_keys: true}`: options for the [`UglifyJS' code generator`](http://lisperator.net/uglifyjs/codegen) in charge of generating the skin object.
 
 ## Description
 
