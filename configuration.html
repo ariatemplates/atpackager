@@ -54,12 +54,14 @@
                 options: {
                     <span class="comment">// sourceDirectories,</span>
                     <span class="comment">// outputDirectory,</span>
+                    <span class="comment">// ATDirectories,</span>
                     <span class="comment">// ATBootstrapFile,</span>
                     <span class="comment">// ATAppEnvironment,</span>
                     <span class="comment">// sourceFiles,</span>
                     <span class="comment">// defaultBuilder,</span>
                     <span class="comment">// packages,</span>
-                    <span class="comment">// visitors</span>
+                    <span class="comment">// visitors,</span>
+                    <span class="comment">// onlySourceFiles</span>
                 }
             }
         }
@@ -120,6 +122,8 @@
 <li><code>builder</code>: the <a href="#builder-configuration">builder configuration</a> to use to create the output file from the input files.</li>
 <li><code>files</code>: the list of input files to be processed by the <code>builder</code> to create the output file with given <code>name</code></li>
 </ul>
+<p>If the list of included files contains some files that are excluded from the global <code>sourceFiles</code>, they will be added or not according to the value of option <code>onlySourceFiles</code>: if set to true, the extra files required by the package will not be added.
+The default value for <code>onlySourceFiles</code> is <code>false</code>. It is always advisable to set it to <code>true</code> in order to limit the recursive inspection of the source directories in search for files to add.</p>
 <p>Note that this list of input <code>files</code> will possibly be extended by some specific visitors if needed.</p>
 <p>Example of a package definition:</p>
 <div class='snippet'><pre><code class="lang-javascript">{
@@ -176,7 +180,8 @@ You can add a visitor in the <code>visitors</code> array by using:</p>
 <p>It is important to note that visitors are called in the order in which they were specified.</p>
 <p>See <a href="./visitors.html">here</a> for a detailed list of built-in visitors.</p>
 <h2 id="aria-templates-specific">Aria Templates specific</h2>
-<p>The <code>ATBootstrapFile</code> option expects the path of a custom bootstrap file to be used to load Aria Templates. This path can be relative to the <code>sourceDirectories</code> configured for the packaging.</p>
+<p>The <code>ATBootstrapFile</code> option expects the path of a custom bootstrap file to be used to load Aria Templates. This path can be relative to the <code>sourceDirectories</code> configured for the packaging.
+However, it is better to set property <code>ATDirectories</code> and avoid to include the directory containing Aria Templates framework from the general sources.</p>
 <p>Having such a custom bootstrap file can be necessary in the case of pre-compilation of Atlas templates. Templates pre-compilation can depend on some application environment variables. In order to set the desired environment variables, there are two options:</p>
 <ul>
 <li><p>either use the standard Aria Templates bootstrap file as <code>ATBootstrapFile</code>, and the appropriate configuration variable <code>ATAppEnvironment</code> for the environment, as shown below:</p>
