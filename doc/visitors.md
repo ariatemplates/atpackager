@@ -69,6 +69,7 @@ Aria Templates (unless specified otherwise, input files filter's default value i
 * [Remove Aria Templates documentation data](#remove-aria-templates-documentation-data-atremovedoc-)
 * [Build an Aria Templates URL Map](#build-an-aria-templates-url-map-aturlmap-)
 * [Normalize Aria Templates skin](#normalize-aria-templates-skin-atnormalizeskin-)
+* [Import Aria Templates packages](#import-aria-templates-packages-atimportpackages-)
 
 
 
@@ -676,6 +677,25 @@ First note that in addition to the given `files` filter, files who don't define 
 
 Then, it normalizes the skin definition using [`aria.widgets.AriaSkinNormalization.normalizeSkin`](http://ariatemplates.com/aria/guide/apps/apidocs/#aria.widgets.AriaSkinNormalization:normalizeSkin:method), replacing the content of the file if done with success, logging an error otherwise.
 
+
+# Import Aria Templates Packages: `ATImportPackages`
+
+Add source files from the given Aria Templates packages. This allows to process each file stored in those packages, and optionally to rebuild the same packages after processing the content.
+
+__When__: `onInit`
+
+## Configuration
+
+* `sourceDirectory`, [`String`](http://devdocs.io/javascript/global_objects/string), defaults to `""` (empty): the directory from which to import the packages.
+* `sourcePackages`, defaults to `['**/*']`: a set of patterns to select the packages to be imported. Passed to the method [`grunt.file.expand`](http://gruntjs.com/api/grunt.file#grunt.file.expand) as `patterns`.
+* `logicalPaths`, defaults to `['**/*']`: a set of patterns to filter the files to be imported inside the selected packages. Passed to the method [`grunt.file.isMatch`](http://gruntjs.com/api/grunt.file#grunt.file.ismatch) as `patterns`.
+* `builder`: can be either `false` or a builder configuration object and defaults to `{type: 'ATMultipart'}`: If this option is not `false`, for each imported package a new package will be created with this builder, and will be associated to the files imported from this package. If this option is set to `false`, the imported files are not associated to any package (so it is possible to repackage them differently).
+
+## Description
+
+The packages to import are selected by the `sourceDirectory` and the `sourcePackages` properties.
+The files to import from those packages are filtered by the `logicalPaths` property.
+For each imported package, if the `builder` property is not `false`, a similar package is configured in the packaging, and associated with the files imported from it.
 
 
 
