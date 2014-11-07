@@ -65,6 +65,7 @@ JavaScript (unless specified otherwise, input files filter's default value is `[
 Aria Templates (unless specified otherwise, input files filter's default value is `[**/*]`):
 
 * [Compile Atlas templates](#compile-atlas-templates-atcompiletemplates-)
+* [Validate Atlas templates](#validate-atlas-templates-atvalidatetemplates-)
 * [Compute Aria Templates dependencies](#compute-aria-templates-dependencies-atdependencies-)
 * [Remove Aria Templates documentation data](#remove-aria-templates-documentation-data-atremovedoc-)
 * [Build an Aria Templates URL Map](#build-an-aria-templates-url-map-aturlmap-)
@@ -473,6 +474,28 @@ __When__: `onWriteInputFile`
 In addition to the given `files` filter, if the file does not correspond to an actual template (we determine it if we can't find an associated parser), the file won't be processed.
 
 
+
+
+# Validate Atlas templates: `ATValidateTemplates`
+
+Validates Atlas templates.
+
+__When__: `onWriteInputFile`
+
+## Configuration
+
+* `files`: files filtering property
+
+## Description
+
+This visitor tries to compile the given templates (if they were not already compiled before by another visitor), and checks that the resulting JavaScript
+code is strictly valid. This is useful, for example, to detect an extra comma in an object literal (which is a cause of errors in some versions of
+Internet Explorer).
+
+Note that this visitor does not replace the file by its compiled version, which is done by the [ATCompileTemplates visitor](#compile-atlas-templates-atcompiletemplates-).
+Both visitors can be used together in the same configuration, to both validate templates and replace them with their compiled version in the output.
+
+In addition to the given `files` filter, if the file does not correspond to an actual template (we determine it if we can't find an associated parser), the file won't be processed.
 
 
 
