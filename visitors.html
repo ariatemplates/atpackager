@@ -95,10 +95,12 @@
 <p>Aria Templates (unless specified otherwise, input files filter&#39;s default value is <code>[**/*]</code>):</p>
 <ul>
 <li><a href="#compile-atlas-templates-atcompiletemplates-">Compile Atlas templates</a></li>
+<li><a href="#validate-atlas-templates-atvalidatetemplates-">Validate Atlas templates</a></li>
 <li><a href="#compute-aria-templates-dependencies-atdependencies-">Compute Aria Templates dependencies</a></li>
 <li><a href="#remove-aria-templates-documentation-data-atremovedoc-">Remove Aria Templates documentation data</a></li>
 <li><a href="#build-an-aria-templates-url-map-aturlmap-">Build an Aria Templates URL Map</a></li>
 <li><a href="#normalize-aria-templates-skin-atnormalizeskin-">Normalize Aria Templates skin</a></li>
+<li><a href="#import-aria-templates-packages-atimportpackages-">Import Aria Templates packages</a></li>
 </ul>
 <h1 id="import-a-source-file-importsourcefile-">Import a source file: <code>ImportSourceFile</code></h1>
 <p>Adds a source file to the packaging, according to the given configuration.</p>
@@ -385,6 +387,20 @@
 </ul>
 <h2 id="description">Description</h2>
 <p>In addition to the given <code>files</code> filter, if the file does not correspond to an actual template (we determine it if we can&#39;t find an associated parser), the file won&#39;t be processed.</p>
+<h1 id="validate-atlas-templates-atvalidatetemplates-">Validate Atlas templates: <code>ATValidateTemplates</code></h1>
+<p>Validates Atlas templates.</p>
+<p><strong>When</strong>: <code>onWriteInputFile</code></p>
+<h2 id="configuration">Configuration</h2>
+<ul>
+<li><code>files</code>: files filtering property</li>
+</ul>
+<h2 id="description">Description</h2>
+<p>This visitor tries to compile the given templates (if they were not already compiled before by another visitor), and checks that the resulting JavaScript
+code is strictly valid. This is useful, for example, to detect an extra comma in an object literal (which is a cause of errors in some versions of
+Internet Explorer).</p>
+<p>Note that this visitor does not replace the file by its compiled version, which is done by the <a href="#compile-atlas-templates-atcompiletemplates-">ATCompileTemplates visitor</a>.
+Both visitors can be used together in the same configuration, to both validate templates and replace them with their compiled version in the output.</p>
+<p>In addition to the given <code>files</code> filter, if the file does not correspond to an actual template (we determine it if we can&#39;t find an associated parser), the file won&#39;t be processed.</p>
 <h1 id="compute-aria-templates-dependencies-atdependencies-">Compute Aria Templates dependencies: <code>ATDependencies</code></h1>
 <p>Computes the dependencies of the given input file, and adds them to the latter.</p>
 <p><strong>When</strong>: <code>computeDependencies</code></p>
@@ -518,12 +534,26 @@
 </ul>
 <h3 id="normalization-options">Normalization options</h3>
 <ul>
-<li><code>jsonIndent</code>, <a href="http://devdocs.io/javascript/global_objects/string"><code>String</code></a>, defaults to <em>4 spaces</em>: the indentation string to use.</li>
 <li><code>strict</code>, <a href="http://devdocs.io/javascript/global_objects/boolean"><code>Boolean</code></a>, defaults to <code>false</code>: whether to log actual error messages if there are errors, or to simply log warnings.</li>
+<li><code>outputOptions</code>, <a href="http://devdocs.io/javascript/global_objects/object"><code>Object</code></a>, defaults to <code>{beautify: true, quote_keys: true}</code>: options for the <a href="http://lisperator.net/uglifyjs/codegen"><code>UglifyJS&#39; code generator</code></a> in charge of generating the skin object.</li>
 </ul>
 <h2 id="description">Description</h2>
 <p>First note that in addition to the given <code>files</code> filter, files who don&#39;t define an Aria class with a classpath corresponding to the skin (<a href="http://ariatemplates.com/aria/guide/apps/apidocs/#aria.widgets.AriaSkin"><code>aria.widgets.AriaSkin</code></a>) will be skipped as well.</p>
 <p>Then, it normalizes the skin definition using <a href="http://ariatemplates.com/aria/guide/apps/apidocs/#aria.widgets.AriaSkinNormalization:normalizeSkin:method"><code>aria.widgets.AriaSkinNormalization.normalizeSkin</code></a>, replacing the content of the file if done with success, logging an error otherwise.</p>
+<h1 id="import-aria-templates-packages-atimportpackages-">Import Aria Templates Packages: <code>ATImportPackages</code></h1>
+<p>Add source files from the given Aria Templates packages. This allows to process each file stored in those packages, and optionally to rebuild the same packages after processing the content.</p>
+<p><strong>When</strong>: <code>onInit</code></p>
+<h2 id="configuration">Configuration</h2>
+<ul>
+<li><code>sourceDirectory</code>, <a href="http://devdocs.io/javascript/global_objects/string"><code>String</code></a>, defaults to <code>&quot;&quot;</code> (empty): the directory from which to import the packages.</li>
+<li><code>sourcePackages</code>, defaults to <code>[&#39;**/*&#39;]</code>: a set of patterns to select the packages to be imported. Passed to the method <a href="http://gruntjs.com/api/grunt.file#grunt.file.expand"><code>grunt.file.expand</code></a> as <code>patterns</code>.</li>
+<li><code>logicalPaths</code>, defaults to <code>[&#39;**/*&#39;]</code>: a set of patterns to filter the files to be imported inside the selected packages. Passed to the method <a href="http://gruntjs.com/api/grunt.file#grunt.file.ismatch"><code>grunt.file.isMatch</code></a> as <code>patterns</code>.</li>
+<li><code>builder</code>: can be either <code>false</code> or a builder configuration object and defaults to <code>{type: &#39;ATMultipart&#39;}</code>: If this option is not <code>false</code>, for each imported package a new package will be created with this builder, and will be associated to the files imported from this package. If this option is set to <code>false</code>, the imported files are not associated to any package (so it is possible to repackage them differently).</li>
+</ul>
+<h2 id="description">Description</h2>
+<p>The packages to import are selected by the <code>sourceDirectory</code> and the <code>sourcePackages</code> properties.
+The files to import from those packages are filtered by the <code>logicalPaths</code> property.
+For each imported package, if the <code>builder</code> property is not <code>false</code>, a similar package is configured in the packaging, and associated with the files imported from it.</p>
 <h1 id="create-custom-visitors">Create custom visitors</h1>
 <p>It is possible to create custom visitors and use them in your atpackager configurations. As an example, you can take a look at the <a href="https://github.com/ariatemplates/noder-js/tree/master/build/visitors">custom visitors created for noderJS</a>.</p>
 <h2 id="how-to-declare-a-custom-visitor">How to declare a custom visitor</h2>
