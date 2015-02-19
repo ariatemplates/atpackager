@@ -24,6 +24,7 @@ JavaScript specific builders:
 Aria Templates specific builders:
 
 * [Create an Aria Templates multi-part file](#create-an-aria-templates-multi-part-file-atmultipart-)
+* [Create an Aria Templates cache update package file](#create-an-aria-templates-cache-update-package-file-atfillcache-)
 
 
 
@@ -138,6 +139,30 @@ where:
 
 For the full process, please refer to the `Concat` builder.
 
+
+# Create an Aria Templates cache update package file: `ATFillCache`
+
+This builder creates packages which can be used to fill the cache of Aria Templates. It extends the `Concat` builder, so please refer to it as well.
+The packages created with this builder can be loaded with a script tag to make some classes available synchronously.
+
+## Configuration
+
+There is no extra configuration parameter (only the parameters inherited from `Concat`)
+
+## Build process
+
+For each input file, the builder generates a line in the output package with the following format:
+
+```javascript
+aria.core.DownloadMgr.loadFileContent("{path}","{content}");
+```
+
+where:
+
+* `"{path}"` is the "stringified" logical path of the input file, with backslashes replaced by normal slashes
+* `"{content}"` is the "stringified" content of the input file
+
+For the full process, please refer to the `Concat` builder.
 
 
 # Create custom builders
