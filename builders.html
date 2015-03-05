@@ -62,6 +62,7 @@
 <p>Aria Templates specific builders:</p>
 <ul>
 <li><a href="#create-an-aria-templates-multi-part-file-atmultipart-">Create an Aria Templates multi-part file</a></li>
+<li><a href="#create-an-aria-templates-cache-update-package-file-atfillcache-">Create an Aria Templates cache update package file</a></li>
 </ul>
 <h1 id="copy-files-copy-">Copy files: <code>Copy</code></h1>
 <p><em>No configuration expected</em></p>
@@ -148,6 +149,20 @@
 <ul>
 <li><code>{multipartBoundary}</code> is the one provided in configuration</li>
 <li><code>{path}</code> is the logical path of the input file, with backslashes replaced by normal slashes</li>
+</ul>
+<p>For the full process, please refer to the <code>Concat</code> builder.</p>
+<h1 id="create-an-aria-templates-cache-update-package-file-atfillcache-">Create an Aria Templates cache update package file: <code>ATFillCache</code></h1>
+<p>This builder creates packages which can be used to fill the cache of Aria Templates. It extends the <code>Concat</code> builder, so please refer to it as well.
+The packages created with this builder can be loaded with a script tag to make some classes available synchronously.</p>
+<h2 id="configuration">Configuration</h2>
+<p>There is no extra configuration parameter (only the parameters inherited from <code>Concat</code>)</p>
+<h2 id="build-process">Build process</h2>
+<p>For each input file, the builder generates a line in the output package with the following format:</p>
+<div class='snippet'><pre><code class="lang-javascript">aria.core.DownloadMgr.loadFileContent(<span class="string">"{path}"</span>,<span class="string">"{content}"</span>);</code></pre></div>
+<p>where:</p>
+<ul>
+<li><code>&quot;{path}&quot;</code> is the &quot;stringified&quot; logical path of the input file, with backslashes replaced by normal slashes</li>
+<li><code>&quot;{content}&quot;</code> is the &quot;stringified&quot; content of the input file</li>
 </ul>
 <p>For the full process, please refer to the <code>Concat</code> builder.</p>
 <h1 id="create-custom-builders">Create custom builders</h1>
