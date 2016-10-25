@@ -514,6 +514,7 @@ Options:
 
 * `mustExist`, [`Boolean`](http://devdocs.io/javascript/global_objects/boolean), defaults to `true`: whether to be strict or not when finding dependencies. If `true`, determined dependencies must be found in the packaging.
 * `externalDependencies`, [`Array`](http://devdocs.io/javascript/global_objects/array) of [`String`](http://devdocs.io/javascript/global_objects/string), defaults to `[]`: list of paths of dependencies to consider as external, and therefore which do not have to be inside the packaging.
+* `detectCommonJS`, [`Boolean`](http://devdocs.io/javascript/global_objects/boolean), defaults to `true`: whether to enable the detection of the CommonJS syntax. If `true`, `ATDependencies` tries to find any usage of a `require` global function in a file, and if it is used, it will skip the detection of dependencies for this file. If `false`, `ATDependencies` does not try to detect the CommonJS format, which may lead to many warnings in case the file uses the CommonJS syntax, because `ATDependencies` is not designed to work with the CommonJS syntax.
 
 ## Description
 
