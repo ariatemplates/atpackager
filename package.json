@@ -1,7 +1,7 @@
 {
   "author": "ariatemplates <contact@ariatemplates.com> (http://github.com/ariatemplates)",
   "name": "atpackager",
-  "description": "Visitor-based file packager plugin for Grunt 0.4.x, developed for the Aria Templates framework.",
+  "description": "Visitor-based file packager Grunt plugin, developed for the Aria Templates framework.",
   "version": "0.2.7",
   "homepage": "http://github.com/ariatemplates/atpackager",
   "repository": {
