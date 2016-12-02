@@ -11,16 +11,16 @@
   "main": "lib/main.js",
   "dependencies": {
     "murmurhash-js": "1.0.0",
-    "uglify-js": "2.7.4"
+    "uglify-js": "2.7.5"
   },
   "devDependencies": {
     "grunt": "1.0.1",
     "grunt-cli": "1.2.0",
-    "grunt-contrib-jshint": "1.0.0",
+    "grunt-contrib-jshint": "1.1.0",
     "grunt-contrib-copy": "1.0.0",
     "grunt-markdown": "0.7.0",
-    "highlight.js": "9.7.0",
-    "js-yaml": "3.6.1"
+    "highlight.js": "9.8.0",
+    "js-yaml": "3.7.0"
   },
   "peerDependencies": {
     "grunt": ">=0.4.0"
