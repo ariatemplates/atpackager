@@ -66,6 +66,7 @@ Aria Templates (unless specified otherwise, input files filter's default value i
 
 * [Compile Atlas templates](#compile-atlas-templates-atcompiletemplates-)
 * [Validate Atlas templates](#validate-atlas-templates-atvalidatetemplates-)
+* [Compile Aria Templates beans](#compile-aria-templates-beans-)
 * [Compute Aria Templates dependencies](#compute-aria-templates-dependencies-atdependencies-)
 * [Remove Aria Templates documentation data](#remove-aria-templates-documentation-data-atremovedoc-)
 * [Build an Aria Templates URL Map](#build-an-aria-templates-url-map-aturlmap-)
@@ -496,6 +497,27 @@ Note that this visitor does not replace the file by its compiled version, which 
 Both visitors can be used together in the same configuration, to both validate templates and replace them with their compiled version in the output.
 
 In addition to the given `files` filter, if the file does not correspond to an actual template (we determine it if we can't find an associated parser), the file won't be processed.
+
+
+
+
+# Compile Aria Templates beans: `ATCompileBeans`
+
+Compile beans.
+
+__When__: `onWriteInputFile`
+
+## Configuration
+
+* `files`: files filtering property
+
+Other configuration properties (such as `onlyFastNorm`) are specified in the `config` parameter of [`aria.utils.BeanExtractor.extract`](http://ariatemplates.com/aria/guide/apps/apidocs/#aria.utils.BeanExtractor:extract:method) in the API documentation of Aria Templates.
+
+## Description
+
+This visitor tries to compile the given bean definitions. Compiling beans usually increases the size of the file, but decreases the time to execute it.
+
+In addition to the given `files` filter, if the file does not correspond to an actual package of bean definitions, the file won't be processed.
 
 
 
