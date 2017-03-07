@@ -62,7 +62,8 @@
 <h2 id="download">Download</h2>
 <p><em><a href="https://www.npmjs.org/package/atpackager">atpackager</a> is available on <a href="https://www.npmjs.org/">npm</a></em></p>
 <p>To install it inside your project, execute this:</p>
-<div class='snippet'><pre><code class="lang-bash">npm install atpackager</code></pre></div>
+<div class='snippet'><pre><code class="lang-bash">npm install atpackager
+</code></pre></div>
 <p>Otherwise, include it as a dependency inside your <code>package.json</code> file.</p>
 <h2 id="configure">Configure</h2>
 <p><em><a href="./configuration.html">Full article on the configuration options</a></em></p>
@@ -85,8 +86,9 @@
 <div class='snippet'><pre><code class="lang-javascript"><span class="keyword">var</span> grunt = <span class="built_in">require</span>(<span class="string">"grunt"</span>); <span class="comment">// found in a node_modules folder</span>
 
 grunt.cli({
-    gruntfile: __dirname + <span class="string">"/Gruntfile.js"</span> <span class="comment">// Gruntfile.js file in current module's folder</span>
-});</code></pre></div>
+    <span class="attr">gruntfile</span>: __dirname + <span class="string">"/Gruntfile.js"</span> <span class="comment">// Gruntfile.js file in current module's folder</span>
+});
+</code></pre></div>
 <p>The list of available options can be seen in this source file <a href="https://github.com/gruntjs/grunt/blob/master/lib/grunt/cli.js">grunt/lib/grunt/cli.js</a>.</p>
 </article>
 					</div>

@@ -47,14 +47,14 @@
 					<div class="columns main-page one">
 						<article class="column"><p>atpackager is built as a Grunt plugin and therefore expects it configuration to be passed using <a href="http://gruntjs.com/api/grunt.config#grunt.config.init"><code>grunt.initConfig</code></a> in the <code>Gruntfile.js</code> file.</p>
 <p>Here is an example of such a file:</p>
-<div class='snippet'><pre><code class="lang-javascript">module.exports = <span class="function"><span class="keyword">function</span> <span class="params">(grunt)</span> {</span>
+<div class='snippet'><pre><code class="lang-javascript"><span class="built_in">module</span>.exports = <span class="function"><span class="keyword">function</span> (<span class="params">grunt</span>) </span>{
     grunt.file.setBase(__dirname + <span class="string">"..."</span>);
     grunt.loadTasks(<span class="string">".../atpackager/tasks"</span>);
 
     grunt.initConfig({
-        atpackager: {
-            build: {
-                options: {
+        <span class="attr">atpackager</span>: {
+            <span class="attr">build</span>: {
+                <span class="attr">options</span>: {
                     <span class="comment">// sourceDirectories,</span>
                     <span class="comment">// outputDirectory,</span>
                     <span class="comment">// ATDirectories,</span>
@@ -73,15 +73,18 @@
     grunt.registerTask(<span class="string">'default'</span>, [
         <span class="string">'atpackager:build'</span>
     ]);
-};</code></pre></div>
+};
+</code></pre></div>
 <p>The rest of this documentation mainly discusses the actual configuration of atpackager, namely the <code>options</code> object you can see in the snippet of code.</p>
 <h1 id="general-configuration-not-specific-to-atpackager">General configuration not specific to atpackager</h1>
 <h2 id="set-the-base-directory-of-the-project">Set the base directory of the project</h2>
 <p>This is the equivalent of the <em>current working directory</em>, but for Grunt.</p>
-<div class='snippet'><pre><code class="lang-javascript">grunt.file.setBase(<span class="string">"..."</span>);</code></pre></div>
+<div class='snippet'><pre><code class="lang-javascript">grunt.file.setBase(<span class="string">"..."</span>);
+</code></pre></div>
 <p>Replace <code>...</code> with the actual path to the root of the project.</p>
 <h2 id="load-atpackager-tasks">Load atpackager tasks</h2>
-<div class='snippet'><pre><code class="lang-javascript">grunt.loadTasks(<span class="string">".../atpackager/tasks"</span>);</code></pre></div>
+<div class='snippet'><pre><code class="lang-javascript">grunt.loadTasks(<span class="string">".../atpackager/tasks"</span>);
+</code></pre></div>
 <p>Replace <code>...</code> with the actual path to the <code>atpackager</code> module.</p>
 <h1 id="atpackager-specific-configuration">atpackager specific configuration</h1>
 <p>Note that since it is a Grunt plugin, atpackager uses a lot of the latter&#39;s features. Notably regarding paths for files and folders specifications: <a href="https://github.com/isaacs/node-glob">globs</a> are accepted.</p>
@@ -102,12 +105,13 @@
         <span class="string">'src/main/static'</span>,
         <span class="string">'...'</span>
     ],
-    sourceFiles: [
+    <span class="attr">sourceFiles</span>: [
         <span class="string">'**/*.js'</span>,
         <span class="string">'...'</span>
     ]
     <span class="comment">// ...</span>
-}</code></pre></div>
+}
+</code></pre></div>
 <h2 id="output-directory">Output directory</h2>
 <p>Use the <code>outputDirectory</code> option to tell in which directory to put the built packages. This one is relative to the base path configured for Grunt.</p>
 <p>Example:</p>
@@ -115,7 +119,8 @@
     <span class="comment">// ...</span>
     outputDirectory : <span class="string">'target/static'</span>
     <span class="comment">// ...</span>
-}</code></pre></div>
+}
+</code></pre></div>
 <h2 id="packages-definition">Packages definition</h2>
 <p>Pass to the <code>packages</code> option a list of packages definitions.</p>
 <p>A package is a single output file resulting from a building process applied on a set of input files.</p>
@@ -130,15 +135,16 @@ The default value for <code>onlySourceFiles</code> is <code>false</code>. It is 
 <p>Note that this list of input <code>files</code> will possibly be extended by some specific visitors if needed.</p>
 <p>Example of a package definition:</p>
 <div class='snippet'><pre><code class="lang-javascript">{
-    name: <span class="string">"basename.ext"</span>,
-    files: [
+    <span class="attr">name</span>: <span class="string">"basename.ext"</span>,
+    <span class="attr">files</span>: [
         <span class="string">"..."</span>,
         <span class="comment">// ...</span>
     ],
-    builder: {
+    <span class="attr">builder</span>: {
         <span class="comment">// ...</span>
     }
-}</code></pre></div>
+}
+</code></pre></div>
 <p>You can also specify a default builder for packages: it will be used when no explicit builder is specified for a given package. Simply put a <a href="#builder-configuration">builder configuration</a> in <code>defaultBuilder</code>.</p>
 <h3 id="builder-configuration">Builder configuration</h3>
 <p>A builder specifies the way input files have to be merged in order to create a package. There are many <a href="./builders.html">built-in builders</a> available. In order to specify the builder configuration you can:</p>
@@ -146,17 +152,19 @@ The default value for <code>onlySourceFiles</code> is <code>false</code>. It is 
 <li>either simply use its <strong>type</strong>:<div class='snippet'><pre><code class="lang-javascript">{
   <span class="comment">// ...</span>
   builder: <span class="string">"JSConcat"</span>
-}</code></pre></div>
+}
+</code></pre></div>
 </li>
 <li>or a more complex object which contains its type and a configuration object:<div class='snippet'><pre><code class="lang-javascript">{
   <span class="comment">// ...</span>
   builder: {
-      type: <span class="string">"JSConcat"</span>,
-      cfg: {<span class="comment">// The configuration of object</span>
+      <span class="attr">type</span>: <span class="string">"JSConcat"</span>,
+      <span class="attr">cfg</span>: {<span class="comment">// The configuration of object</span>
               <span class="comment">// ...</span>
       }
   }
-}</code></pre></div>
+}
+</code></pre></div>
 </li>
 </ul>
 <h2 id="visitors-specifications">Visitors specifications</h2>
@@ -164,20 +172,22 @@ The default value for <code>onlySourceFiles</code> is <code>false</code>. It is 
 You can add a visitor in the <code>visitors</code> array by using:</p>
 <ul>
 <li>either simply its <strong>type</strong>:<div class='snippet'><pre><code class="lang-javascript">{
-  visitors: [<span class="string">"JSMinify"</span>]
-}</code></pre></div>
+  <span class="attr">visitors</span>: [<span class="string">"JSMinify"</span>]
+}
+</code></pre></div>
 </li>
 <li>or a more complex object which contains its type and a configuration object:<div class='snippet'><pre><code class="lang-javascript">{
-  visitors: [
+  <span class="attr">visitors</span>: [
       <span class="string">"JSMinify"</span>,
       {
-          type: <span class="string">"TextReplace"</span>,
-          cfg: {
+          <span class="attr">type</span>: <span class="string">"TextReplace"</span>,
+          <span class="attr">cfg</span>: {
               <span class="comment">// its configuration</span>
           }
       }
   ]
-}</code></pre></div>
+}
+</code></pre></div>
 </li>
 </ul>
 <p>It is important to note that visitors are called in the order in which they were specified.</p>
@@ -191,15 +201,16 @@ However, it is better to set property <code>ATDirectories</code> and avoid to in
 <div class='snippet'><pre><code class="lang-javascript">  {
       <span class="comment">// ...</span>
       ATBootstrapFile: <span class="string">'aria/aria-templates.js'</span>,
-      ATAppEnvironment: {
-          defaultWidgetLibs : {
+      <span class="attr">ATAppEnvironment</span>: {
+          <span class="attr">defaultWidgetLibs</span> : {
               <span class="string">'aria'</span>: <span class="string">'aria.widgets.AriaLib'</span>,
               <span class="string">'embed'</span>: <span class="string">'aria.embed.EmbedLib'</span>,
               <span class="string">'html'</span>: <span class="string">'aria.html.HtmlLibrary'</span>
           }
       }
       <span class="comment">// ...</span>
-  }</code></pre></div>
+  }
+</code></pre></div>
 </li>
 <li><p>or create an ad-hoc bootstrap file which loads the standard bootstrap and then directly calls the methods that are available in the framework. Such a file would look like this</p>
 <div class='snippet'><pre><code class="lang-javascript">  <span class="comment">// Loading the normal Aria Templates bootstrap file:</span>
@@ -207,12 +218,13 @@ However, it is better to set property <code>ATDirectories</code> and avoid to in
 
   <span class="comment">// Setting the environment for template pre-compilation:</span>
   aria.core.AppEnvironment.setEnvironment({
-      defaultWidgetLibs : {
+      <span class="attr">defaultWidgetLibs</span> : {
           <span class="string">'aria'</span>: <span class="string">'aria.widgets.AriaLib'</span>,
           <span class="string">'embed'</span>: <span class="string">'aria.embed.EmbedLib'</span>,
           <span class="string">'html'</span>: <span class="string">'aria.html.HtmlLibrary'</span>
       }
-  });</code></pre></div>
+  });
+</code></pre></div>
 </li>
 </ul>
 </article>

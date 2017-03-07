@@ -144,7 +144,8 @@
 <div class='snippet'><pre><code class="lang-javascript">
 <span class="comment">//{multipartBoundary}</span>
 <span class="comment">//LOGICAL-PATH:{path}</span>
-<span class="comment">//{multipartBoundary}</span></code></pre></div>
+<span class="comment">//{multipartBoundary}</span>
+</code></pre></div>
 <p>where:</p>
 <ul>
 <li><code>{multipartBoundary}</code> is the one provided in configuration</li>
@@ -158,7 +159,8 @@ The packages created with this builder can be loaded with a script tag to make s
 <p>There is no extra configuration parameter (only the parameters inherited from <code>Concat</code>)</p>
 <h2 id="build-process">Build process</h2>
 <p>For each input file, the builder generates a line in the output package with the following format:</p>
-<div class='snippet'><pre><code class="lang-javascript">aria.core.DownloadMgr.loadFileContent(<span class="string">"{path}"</span>,<span class="string">"{content}"</span>);</code></pre></div>
+<div class='snippet'><pre><code class="lang-javascript">aria.core.DownloadMgr.loadFileContent(<span class="string">"{path}"</span>,<span class="string">"{content}"</span>);
+</code></pre></div>
 <p>where:</p>
 <ul>
 <li><code>&quot;{path}&quot;</code> is the &quot;stringified&quot; logical path of the input file, with backslashes replaced by normal slashes</li>
@@ -169,18 +171,21 @@ The packages created with this builder can be loaded with a script tag to make s
 <p>It is possible to create custom builders and use them in your packages configurations. As an example, you can take a look at the <a href="https://github.com/ariatemplates/noder-js/tree/master/build/builders">custom builders created for noderJS</a>.</p>
 <h2 id="how-to-declare-a-custom-builder">How to declare a custom builder</h2>
 <p>You simply need to create file <code>atpackager.js</code> <strong>at the root of your project</strong> which looks like this</p>
-<div class='snippet'><pre><code class="lang-javascript">module.exports = <span class="function"><span class="keyword">function</span><span class="params">(atpackager)</span> {</span>
+<div class='snippet'><pre><code class="lang-javascript"><span class="built_in">module</span>.exports = <span class="function"><span class="keyword">function</span>(<span class="params">atpackager</span>) </span>{
     <span class="built_in">require</span>(<span class="string">"./atpackager"</span>).init(atpackager);
     atpackager.builders.MyFirstBuilder = <span class="built_in">require</span>(<span class="string">"./myBuilderPath/MyFirstBuilder"</span>);
     atpackager.builders.MySecondBuilder = <span class="built_in">require</span>(<span class="string">"./myBuilderPath/MySecondBuilder"</span>);
-};</code></pre></div>
+};
+</code></pre></div>
 <p>This is what we call a <strong>plugin</strong> for atpackager. It is important that you put the plugin file at the root of your project if you want external projects to use the custom builders declared therein.
 Plugins allow you also to declare <a href="./visitors.html#create-custom-visitors">custom visitors</a>.</p>
 <h2 id="how-to-use-a-custom-builder">How to use a custom builder</h2>
 <p>If you have created a custom builder and declared it in a plugin, you can use it within your project by loading the plugin</p>
-<div class='snippet'><pre><code class="lang-javascript"><span class="built_in">require</span>(<span class="string">'atpackager'</span>).loadPlugin(<span class="string">'./atpackager'</span>);</code></pre></div>
+<div class='snippet'><pre><code class="lang-javascript"><span class="built_in">require</span>(<span class="string">'atpackager'</span>).loadPlugin(<span class="string">'./atpackager'</span>);
+</code></pre></div>
 <p>If you want to load atpackager plugins defined in a dependency (for example in <a href="http://noder-js.ariatemplates.com/"><code>noderJS</code></a>) in order to use the custom builders they declare, you can use</p>
-<div class='snippet'><pre><code class="lang-javascript"><span class="built_in">require</span>(<span class="string">'atpackager'</span>).loadNpmPlugin(<span class="string">'noder-js'</span>);</code></pre></div>
+<div class='snippet'><pre><code class="lang-javascript"><span class="built_in">require</span>(<span class="string">'atpackager'</span>).loadNpmPlugin(<span class="string">'noder-js'</span>);
+</code></pre></div>
 <p>This will load plugin <code>atpackager.js</code> at the root of <code>noder-js</code> dependency.</p>
 </article>
 					</div>

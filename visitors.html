@@ -99,6 +99,7 @@
 <ul>
 <li><a href="#compile-atlas-templates-atcompiletemplates-">Compile Atlas templates</a></li>
 <li><a href="#validate-atlas-templates-atvalidatetemplates-">Validate Atlas templates</a></li>
+<li><a href="#compile-aria-templates-beans-atcompilebeans-">Compile Aria Templates beans</a></li>
 <li><a href="#compute-aria-templates-dependencies-atdependencies-">Compute Aria Templates dependencies</a></li>
 <li><a href="#remove-aria-templates-documentation-data-atremovedoc-">Remove Aria Templates documentation data</a></li>
 <li><a href="#build-an-aria-templates-url-map-aturlmap-">Build an Aria Templates URL Map</a></li>
@@ -160,8 +161,6 @@
     If one day it becomes possible to pass extra arguments, it is better to use this line instead of the previous one to explain the behaviour:
     The second case occurs if the value of this property resolves to `"murmur3"`, __and has precedence__ (so if ever one day this is supported by Node.js, the npm package will still take care of it). In this case, the method `murmur3` is used.
 -->
-
-
 <p>In both cases, the content of the file is given as is to compute the hash. This content is read using the utility <a href="http://gruntjs.com/api/grunt.file#grunt.file.read"><code>grunt.file.read</code></a>, with an <code>encoding</code> set to <a href="http://devdocs.io/javascript/global_objects/null"><code>null</code></a>: raw data is used, to be sure to have unique hashes regarding the actual content (binary) of the file.</p>
 <h1 id="check-that-all-files-have-been-packaged-checkpackaged-">Check that all files have been packaged: <code>CheckPackaged</code></h1>
 <p>Checks that no file present as source file of the packaging was left unprocessed.</p>
@@ -404,6 +403,17 @@ Internet Explorer).</p>
 <p>Note that this visitor does not replace the file by its compiled version, which is done by the <a href="#compile-atlas-templates-atcompiletemplates-">ATCompileTemplates visitor</a>.
 Both visitors can be used together in the same configuration, to both validate templates and replace them with their compiled version in the output.</p>
 <p>In addition to the given <code>files</code> filter, if the file does not correspond to an actual template (we determine it if we can&#39;t find an associated parser), the file won&#39;t be processed.</p>
+<h1 id="compile-aria-templates-beans-atcompilebeans-">Compile Aria Templates beans: <code>ATCompileBeans</code></h1>
+<p>Compile beans.</p>
+<p><strong>When</strong>: <code>onWriteInputFile</code></p>
+<h2 id="configuration">Configuration</h2>
+<ul>
+<li><code>files</code>: files filtering property</li>
+</ul>
+<p>Other configuration properties (such as <code>onlyFastNorm</code>) can be used and are documented in the <code>config</code> parameter of <code>aria.utils.BeanExtractor.extract</code> in the <a href="http://ariatemplates.com/aria/guide/apps/apidocs/#aria.utils.BeanExtractor:extract:method">API of Aria Templates</a>.</p>
+<h2 id="description">Description</h2>
+<p>This visitor tries to compile the given bean definitions. Compiling beans usually increases the size of the file, but decreases the time to execute it.</p>
+<p>In addition to the given <code>files</code> filter, if the file does not correspond to an actual package of bean definitions, the file won&#39;t be processed.</p>
 <h1 id="compute-aria-templates-dependencies-atdependencies-">Compute Aria Templates dependencies: <code>ATDependencies</code></h1>
 <p>Computes the dependencies of the given input file, and adds them to the latter.</p>
 <p><strong>When</strong>: <code>computeDependencies</code></p>
@@ -415,6 +425,7 @@ Both visitors can be used together in the same configuration, to both validate t
 <ul>
 <li><code>mustExist</code>, <a href="http://devdocs.io/javascript/global_objects/boolean"><code>Boolean</code></a>, defaults to <code>true</code>: whether to be strict or not when finding dependencies. If <code>true</code>, determined dependencies must be found in the packaging.</li>
 <li><code>externalDependencies</code>, <a href="http://devdocs.io/javascript/global_objects/array"><code>Array</code></a> of <a href="http://devdocs.io/javascript/global_objects/string"><code>String</code></a>, defaults to <code>[]</code>: list of paths of dependencies to consider as external, and therefore which do not have to be inside the packaging.</li>
+<li><code>detectCommonJS</code>, <a href="http://devdocs.io/javascript/global_objects/boolean"><code>Boolean</code></a>, defaults to <code>true</code>: whether to enable the detection of the CommonJS syntax. If <code>true</code>, <code>ATDependencies</code> tries to find any usage of a <code>require</code> global function in a file, and if it is used, it will skip the detection of dependencies for this file. If <code>false</code>, <code>ATDependencies</code> does not try to detect the CommonJS format, which may lead to many warnings in case the file uses the CommonJS syntax, because <code>ATDependencies</code> is not designed to work with the CommonJS syntax.</li>
 </ul>
 <h2 id="description">Description</h2>
 <p>Dependencies of the given input file are computed, and then actually specified as being dependencies of the file.</p>
@@ -475,14 +486,15 @@ Both visitors can be used together in the same configuration, to both validate t
 <p>For a quick recap, an Aria Templates URL map maps classpaths to the actual file in which corresponding files are stored. Indeed, it allows to override the default behavior where one classpath corresponds exactly to one file path.</p>
 <p>Example of such a map:</p>
 <div class='snippet'><pre><code class="lang-json">{
-    "<span class="attribute">A</span>": <span class="value">{
-        "<span class="attribute">B</span>": <span class="value">{
-            "<span class="attribute">X</span>": <span class="value"><span class="string">"output/XY.js"</span></span>,
-            "<span class="attribute">Y</span>": <span class="value"><span class="string">"output/XY.js"</span></span>,
-            "<span class="attribute">Z</span>": <span class="value"><span class="string">"Z.js"</span>
-        </span>}
-    </span>}
-</span>}</code></pre></div>
+    <span class="attr">"A"</span>: {
+        <span class="attr">"B"</span>: {
+            <span class="attr">"X"</span>: <span class="string">"output/XY.js"</span>,
+            <span class="attr">"Y"</span>: <span class="string">"output/XY.js"</span>,
+            <span class="attr">"Z"</span>: <span class="string">"Z.js"</span>
+        }
+    }
+}
+</code></pre></div>
 <p>(note that the output files names are always normalized and forced to use forward slashes).</p>
 <p>Now, here is the process.</p>
 <p>The source files contained in the packaging are iterated over.</p>
@@ -504,29 +516,32 @@ Both visitors can be used together in the same configuration, to both validate t
 <p>The star compression takes in a given module a group of classes mapped to the same output file, and removes all those mappings to replace them with a single generic one named <code>*</code>. This becomes a fallback when the class is not explicitly mapped.</p>
 <p>With our previous example, this would give:</p>
 <div class='snippet'><pre><code class="lang-json">{
-    "<span class="attribute">A</span>": <span class="value">{
-        "<span class="attribute">B</span>": <span class="value">{
-            "<span class="attribute">*</span>": <span class="value"><span class="string">"output/XY.js"</span></span>,
-            "<span class="attribute">Z</span>": <span class="value"><span class="string">"Z.js"</span>
-        </span>}
-    </span>}
-</span>}</code></pre></div>
+    <span class="attr">"A"</span>: {
+        <span class="attr">"B"</span>: {
+            <span class="attr">"*"</span>: <span class="string">"output/XY.js"</span>,
+            <span class="attr">"Z"</span>: <span class="string">"Z.js"</span>
+        }
+    }
+}
+</code></pre></div>
 <p>For best efficiency, the highest numbers of mappings will be removed, which means the star fallback will map to the output file with the highest number of classes.</p>
 <p><strong>Note that to avoid a base classpath to be compressed - which means to receive a <em>star</em> fallback - you can use the filter <code>starCompress</code>.</strong></p>
 <h3 id="star-star-compression">Star-star compression</h3>
 <p>The goal of star-star compression is the same: to gain some spaces in the map be grouping some entries.</p>
 <p>The difference here is that it spans across several hierarchies of modules. Given another example:</p>
 <div class='snippet'><pre><code class="lang-json">{
-    "<span class="attribute">A</span>": <span class="value">{
-        "<span class="attribute">B</span>": <span class="value">{
-            "<span class="attribute">*</span>": <span class="value"><span class="string">"P.js"</span>
-        </span>}
-    </span>}
-</span>}</code></pre></div>
+    <span class="attr">"A"</span>: {
+        <span class="attr">"B"</span>: {
+            <span class="attr">"*"</span>: <span class="string">"P.js"</span>
+        }
+    }
+}
+</code></pre></div>
 <p>this would give:</p>
 <div class='snippet'><pre><code class="lang-json">{
-    "<span class="attribute">**</span>": <span class="value"><span class="string">"P.js"</span>
-</span>}</code></pre></div>
+    <span class="attr">"**"</span>: <span class="string">"P.js"</span>
+}
+</code></pre></div>
 <p><strong>Note that to avoid a base classpath to be compressed - which means to receive a <em>star-star</em> fallback - you can use the filter <code>starStarCompress</code>.</strong></p>
 <h1 id="normalize-aria-templates-skin-atnormalizeskin-">Normalize Aria Templates skin: <code>ATNormalizeSkin</code></h1>
 <p>Normalizes Aria Templates skin definitions.</p>
@@ -561,18 +576,21 @@ For each imported package, if the <code>builder</code> property is not <code>fal
 <p>It is possible to create custom visitors and use them in your atpackager configurations. As an example, you can take a look at the <a href="https://github.com/ariatemplates/noder-js/tree/master/build/visitors">custom visitors created for noderJS</a>.</p>
 <h2 id="how-to-declare-a-custom-visitor">How to declare a custom visitor</h2>
 <p>You simply need to create file <code>atpackager.js</code> <strong>at the root of your project</strong> which looks like this</p>
-<div class='snippet'><pre><code class="lang-javascript">module.exports = <span class="function"><span class="keyword">function</span><span class="params">(atpackager)</span> {</span>
+<div class='snippet'><pre><code class="lang-javascript"><span class="built_in">module</span>.exports = <span class="function"><span class="keyword">function</span>(<span class="params">atpackager</span>) </span>{
     <span class="built_in">require</span>(<span class="string">"./atpackager"</span>).init(atpackager);
     atpackager.visitors.MyFirstVisitor = <span class="built_in">require</span>(<span class="string">"./myVisitorsPath/MyFirstVisitor"</span>);
     atpackager.visitors.MySecondVisitor = <span class="built_in">require</span>(<span class="string">"./myVisitorsPath/MySecondVisitor"</span>);
-};</code></pre></div>
+};
+</code></pre></div>
 <p>This is what we call a <strong>plugin</strong> for atpackager. It is important that you put the plugin file at the root of your project if you want external projects to use the custom visitors declared therein.
 Plugins allow you also to declare <a href="./builders.html#create-custom-builders">custom builders</a>.</p>
 <h2 id="how-to-use-a-custom-visitor">How to use a custom visitor</h2>
 <p>If you have created a custom visitor and declared it in a plugin, you can use it within your project by loading the plugin</p>
-<div class='snippet'><pre><code class="lang-javascript"><span class="built_in">require</span>(<span class="string">'atpackager'</span>).loadPlugin(<span class="string">'./atpackager'</span>);</code></pre></div>
+<div class='snippet'><pre><code class="lang-javascript"><span class="built_in">require</span>(<span class="string">'atpackager'</span>).loadPlugin(<span class="string">'./atpackager'</span>);
+</code></pre></div>
 <p>If you want to load atpackager plugins defined in a dependency (for example in <a href="http://noder-js.ariatemplates.com/"><code>noderJS</code></a>) in order to use the custom visitors they declare, you can use</p>
-<div class='snippet'><pre><code class="lang-javascript"><span class="built_in">require</span>(<span class="string">'atpackager'</span>).loadNpmPlugin(<span class="string">'noder-js'</span>);</code></pre></div>
+<div class='snippet'><pre><code class="lang-javascript"><span class="built_in">require</span>(<span class="string">'atpackager'</span>).loadNpmPlugin(<span class="string">'noder-js'</span>);
+</code></pre></div>
 <p>This will load plugin <code>atpackager.js</code> at the root of <code>noder-js</code> dependency.</p>
 </article>
 					</div>
