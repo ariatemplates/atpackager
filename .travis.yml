@@ -8,7 +8,7 @@ before_install:
 
 env:
  global:
-  - secure: "NI7NdaZ07nAHvTCqYIKn5/e7IDlbM4Vf5VeNPCvQrJLjGs9EwJeHQw2JPVMdIKuA9Ndh8zb3ziOajqyDyIety0IX4mA0QidapvdwSohfvfButDiCovC2Ol7cuhW1+HJuOvtCYD1IzBjr9edNxR2nDrW9+JAxNpjVK27mQyx7la4="
+  - secure: "mOf/8UBsqp7o9PYSCdgrZXoRUa1zSiaf8YmzqpS0huamN6FZKXTD6XXbeswgL+As7WGB/LsEPkQyVoejY41SVMJkB6UXRFa/y3Ecd2kmNgahXI6VkkKXNzoEs5JBwcr9QiCPzoUREr9KKqcNokjY7l6+qx1fBAU80W8Nq2eQ7nc="
 
 after_success:
  - chmod -R 777 ./ci-release.sh
