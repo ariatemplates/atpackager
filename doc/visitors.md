@@ -61,6 +61,7 @@ JavaScript (unless specified otherwise, input files filter's default value is `[
 * [Check/add dependencies](#check-add-dependencies-checkdependencies-)
 * [Check global variables use](#check-global-variables-use-checkglobals-)
 * [Remove comment banners in JavaScript files](#remove-js-banner-jsstripbanner-)
+* [Instrument for coverage](#instrument-for-coverage-nodecoverageinstrument-)
 
 Aria Templates (unless specified otherwise, input files filter's default value is `[**/*]`):
 
@@ -457,6 +458,32 @@ Here are the kind of comments removed, depending on the given configuration:
 * `block` is `false`: `/* ... */` leading comments are removed, except those with an extra exclamation mark, like this: `/*! ... */`
 
 You can see that anyway one type of block comments will be removed.
+
+
+
+# Instrument for coverage: `NodeCoverageInstrument`
+
+Instruments files with [node-coverage](https://github.com/piuccio/node-coverage).
+
+__When__: `onWriteInputFile`, `onAfterBuild`
+
+## Configuration
+
+Files filtering:
+
+* `files`: files filtering property
+
+Output file specifications:
+
+* `infoFile`, [`String`](http://devdocs.io/javascript/global_objects/string), defaults to `"coverage-instrumentation.json"`: name of the file into which instrumentation information should be output.
+* `infoFileEncoding`, [`String`](http://devdocs.io/javascript/global_objects/string), defaults to [`null`](http://devdocs.io/javascript/global_objects/null) (uses [`grunt.file.defaultEncoding`](http://gruntjs.com/api/grunt.file#grunt.file.defaultencoding) instead): the encoding of the instrumentation info file.
+* `outputDirectory`, [`String`](http://devdocs.io/javascript/global_objects/string), defaults to [`null`](http://devdocs.io/javascript/global_objects/null) (uses the packaging's directory instead): the directory of the instrumentation info file.
+* `pathPrefix`, [`String`](http://devdocs.io/javascript/global_objects/string), defaults to `""`: prefix to add to all file paths in the coverage report
+* `nodeCoverageOptions`, options to pass to node-coverage
+
+## Description
+
+This visitor instruments each specified file for coverage with [node-coverage](https://github.com/piuccio/node-coverage) and also outputs a json file containing the instrumentation information of all processed files. This json file can be used along with the instrumented build in [attester](https://github.com/attester/attester.git) to get the coverage of tests.
 
 
 
